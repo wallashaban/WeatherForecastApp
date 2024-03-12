@@ -8,8 +8,7 @@
         <item name="actionBarStyle">@style/MyDrawerStyle</item>
         <item name="android:statusBarColor">@color/navyBlue</item>
         <item name="android:windowBackground">@drawable/dark_gradient_background</item>
-
-
+        <item name="iconTint">@color/white</item>
         <item name="cardViewBackgroundColor">@color/lightNavyBlue</item>
         <item name="actionOverflowButtonStyle">@style/IconOverFlow</item>
 
