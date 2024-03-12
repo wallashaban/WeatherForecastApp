@@ -1,9 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.WeatherForecastApplication" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.WeatherForecastApplication" parent="Theme.Material3.DayNight">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowBackground">@drawable/light_gradient_background</item>
+        <item name="navigationViewStyle">@style/MyDrawerStyle</item>
+        <item name="actionBarStyle">@style/MyDrawerStyle</item>
+        <item name="android:statusBarColor">@color/darkBlue</item>
+
+        <item name="actionOverflowButtonStyle">@style/IconOverFlow</item>
+
+
+    </style>
+    <style name="MyDrawerStyle" parent="Widget.Design.NavigationView">
+        <item name="android:background">@drawable/light_gradient_background</item>
     </style>
 
-    <style name="Theme.WeatherForecastApplication" parent="Base.Theme.WeatherForecastApplication" />
+    <style name="IconOverFlow"
+        parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@color/white</item>
+    </style>
 </resources>

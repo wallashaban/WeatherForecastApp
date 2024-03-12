@@ -1,7 +1,30 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.WeatherForecastApplication" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.WeatherForecastApplication" parent="Theme.Material3.DayNight">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="android:colorPrimary">@color/navyBlue</item>
+        <item name="navigationViewStyle">@style/MyDrawerStyle</item>
+        <item name="actionBarStyle">@style/MyDrawerStyle</item>
+        <item name="android:statusBarColor">@color/navyBlue</item>
+        <item name="android:windowBackground">@drawable/dark_gradient_background</item>
+
+
+        <item name="cardViewBackgroundColor">@color/lightNavyBlue</item>
+        <item name="actionOverflowButtonStyle">@style/IconOverFlow</item>
+
     </style>
+
+
+
+
+    <style name="MyDrawerStyle" parent="Widget.Design.NavigationView">
+        <item name="android:background">@drawable/dark_gradient_background</item>
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="actionMenuTextAppearance">@color/white</item>
+    </style>
+    <style name="IconOverFlow" parent="Widget.AppCompat.ActionButton.Overflow">
+       <item name="android:tint">@color/white</item>
+    </style>
+
 </resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Default background color for light theme -->
+            <solid android:color="@color/lightBlue" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Background color for dark theme -->
+            <solid android:color="@color/lightNavyBlue" />
+        </shape>
+    </item>
+</layer-list>
