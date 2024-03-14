@@ -1,6 +1,9 @@
 package com.example.weatherforecastapplication.Shared
 
+import android.content.Context
+import android.util.Log
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -22,4 +25,47 @@ fun loadImage(view: ImageView, url:String)
                 .error(R.drawable.ic_launcher_background)
         )
         .into(view)
+}
+
+
+// Themes functions
+fun saveSelectedModeToSharedPref(context: Context,mode:Int)
+{
+    val sharedPreferences = context.getSharedPreferences("mode", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.putInt("mode", mode)
+    editor.apply()
+    changeMode(mode)
+}
+
+fun changeMode(mode:Int)
+{
+    when(mode) {
+        1 -> {
+            Log.i("TAG", "changeMode: 1")
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+        2 -> {
+            Log.i("TAG", "changeMode: 2")
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+        3 -> {
+            Log.i("TAG", "changeMode: 3")
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+    }
+}
+
+fun applyMode(context:Context)
+{
+    val mode = getCurrentMode(context)
+    if(mode==3)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.getDefaultNightMode())
+    else
+        AppCompatDelegate.setDefaultNightMode(mode)
+}
+fun getCurrentMode(context: Context): Int {
+    val sharedPreferences = context.getSharedPreferences("mode", Context.MODE_PRIVATE)
+    //Log.i("TAG", "getCurrentMode: shared pref $mode")
+    return sharedPreferences.getInt("mode", 3)
 }

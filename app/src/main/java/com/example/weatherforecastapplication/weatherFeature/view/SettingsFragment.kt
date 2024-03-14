@@ -1,21 +1,25 @@
 package com.example.weatherforecastapplication.weatherFeature.view
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.example.weatherforecastapplication.Shared.getCurrentMode
+import com.example.weatherforecastapplication.Shared.saveSelectedModeToSharedPref
 import com.example.weatherforecastapplication.databinding.FragmentSettingsBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+
 
 class SettingsFragment : Fragment() {
   private lateinit var binding:FragmentSettingsBinding
+    var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +46,30 @@ class SettingsFragment : Fragment() {
         spinnerData(locationItems,binding.locationSpinner)
         val langItems = listOf("English", "arabic")
         spinnerData(langItems,binding.langSpinner)
-        val themeItems = listOf("Light", "Dark")
+        val themeItems = listOf("Light", "Dark","System")
         spinnerData(themeItems,binding.themeSpinner)
+
+        binding.themeSpinner.setSelection(getCurrentMode(requireContext())-1)
+        binding.themeSpinner.onItemSelectedListener = object :AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                onThemeSelectedItem(parent,position)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Toast.makeText(
+                    requireContext(),
+                    "Nothing Selected",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+        }
+
     }
 
     private fun spinnerData(items:List<String>,spinner: Spinner)
@@ -54,5 +80,22 @@ class SettingsFragment : Fragment() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
         spinner.adapter = adapter
+    }
+
+    private fun onThemeSelectedItem(parent: AdapterView<*>?,position:Int)
+    {
+        count++
+        val selectedItem = parent?.getItemAtPosition(position).toString()
+
+        if(selectedItem == "Light"&& count>1) {
+            Log.i("TAG", "onItemSelected: Light")
+            saveSelectedModeToSharedPref(requireContext(),1)
+        }else if(selectedItem == "Dark" && count>1){
+            Log.i("TAG", "onItemSelected: Dark")
+            saveSelectedModeToSharedPref(requireContext(),2) // remember it's been called twice
+        }else if(selectedItem == "System" && count>1){
+            Log.i("TAG", "onItemSelected: System")
+            saveSelectedModeToSharedPref(requireContext(),3)
+        }
     }
 }

@@ -37,9 +37,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="32dp"
-                android:backgroundTint="@color/lightNavyBlue"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="32dp"
+                style="@style/CardViewStyle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
