@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class CurrentWeather(
     @SerializedName("dt_txt")
-    val dateText:String,
+    val dateText: String,
     val weather: List<Weather>,
     val main: Main,
     val wind: Wind,
@@ -44,7 +44,7 @@ data class Main(
     @SerializedName("grnd_level")
     val groundLevel: Double,
     @SerializedName("temp_kf")
-    val tempKf:Double
+    val tempKf: Double
 )
 
 data class Clouds(val all: Int)

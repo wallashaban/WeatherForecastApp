@@ -14,7 +14,7 @@ android {
     }
     defaultConfig {
         applicationId = "com.example.weatherforecastapplication"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -42,6 +42,10 @@ android {
 
 dependencies {
 
+    //google play services location
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
+
     //Glide
     annotationProcessor ("com.github.bumptech.glide:compiler:4.13.0")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
@@ -49,7 +53,7 @@ dependencies {
     implementation ("androidx.room:room-ktx:2.6.1")
     implementation ("androidx.room:room-runtime:2.6.1")
     kapt ("androidx.room:room-compiler:2.6.1")
-//Coroutine
+    //Coroutine
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

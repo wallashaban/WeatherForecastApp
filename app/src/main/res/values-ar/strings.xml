@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello_blank_fragment">مرحبا بالشاشة الفارغة</string>
+    <string name="home">الصفحة الرئيسية</string>
+    <string name="favourites">المفضلة</string>
+    <string name="alert">التنبيهات</string>
+    <string name="settings">الإعدادات</string>
+    <string name="temp">درجة الحرارة</string>
+    <string name="location">الموقع</string>
+    <string name="wind">الرياح</string>
+    <string name="language">اللغة</string>
+    <string name="notification">الإشعارات</string>
+    <string name="theme">السمة</string>
+    <string name="apply">تطبيق</string>
+
+    <string name="celsius">مئوية</string>
+    <string name="fahrenheit">فهرنهايت</string>
+    <string name="kelvin">كلفن</string>
+    <!-- Light, Dark, System -->
+    <string name="light_mode">ضوء</string>
+    <string name="dark_mode">ظلام</string>
+    <string name="system_mode">النظام</string>
+
+    <!-- English, Arabic -->
+    <string name="english_language">الإنجليزية</string>
+    <string name="arabic_language">العربية</string>
+
+    <!-- GPS, Map -->
+    <string name="gps">GPS</string>
+    <string name="map">الخريطة</string>
+
+    <!-- Meter/Sec, Mile/Hour -->
+    <string name="meter_per_second">متر/ثانية</string>
+    <string name="mile_per_hour">ميل/الساعة</string>
+    <string name="today">اليوم</string>
+    <string name="fiveFaysWeather">حالة الطقس للأيام الخمسة القادمة</string>
+
+</resources>

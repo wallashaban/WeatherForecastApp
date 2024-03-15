@@ -1,23 +1,22 @@
 package com.example.weatherforecastapplication.weatherRepository
 
+import android.content.Context
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.model.FiveDaysForecast
 import com.example.weatherforecastapplication.network.RemoteDataSource
 
 class WeatherRepositoryImpl private constructor(
-   private var remoteDataSource: RemoteDataSource
-):WeatherRepository{
+    private var remoteDataSource: RemoteDataSource
+) : WeatherRepository {
 
 
-
-
-    companion object{
+    companion object {
         @Volatile
-        private var INSTANCE:WeatherRepositoryImpl? = null
+        private var INSTANCE: WeatherRepositoryImpl? = null
 
         fun getInstance(remoteDataSource: RemoteDataSource)
-        :WeatherRepositoryImpl{
-            return INSTANCE?: synchronized(this){
+                : WeatherRepositoryImpl {
+            return INSTANCE ?: synchronized(this) {
                 val instance = WeatherRepositoryImpl(remoteDataSource)
                 INSTANCE = instance
                 instance
@@ -28,9 +27,10 @@ class WeatherRepositoryImpl private constructor(
     override suspend fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
-        apiKey: String
+        apiKey: String,
+        units:String,
     ): CurrentWeather {
-       return remoteDataSource.getCurrentWeather(latitude,longitude,apiKey)
+        return remoteDataSource.getCurrentWeather(latitude, longitude, apiKey,units)
     }
 
     override suspend fun getCurrentWeatherUsingRoom(date: String) {
@@ -40,8 +40,9 @@ class WeatherRepositoryImpl private constructor(
     override suspend fun getFiveDaysForecast(
         latitude: Double,
         longitude: Double,
-        apiKey: String
+        apiKey: String,
+        units:String,
     ): FiveDaysForecast {
-        return remoteDataSource.getFiveDaysForecast(latitude, longitude, apiKey)
+        return remoteDataSource.getFiveDaysForecast(latitude, longitude, apiKey,units)
     }
 }

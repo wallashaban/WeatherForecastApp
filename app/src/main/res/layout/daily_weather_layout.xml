@@ -24,23 +24,26 @@
             android:paddingBottom="8dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="24dp"
+            android:shadowColor="@color/lightNavyBlue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
 
                 <TextView
                     android:id="@+id/time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="4dp"
                     android:layout_marginTop="24dp"
-                    android:text="Sun"
                     android:textAlignment="center"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
+                    app:dayOfWeek="@{weather.dateText}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,8 +51,8 @@
                     android:id="@+id/hourlyWeatherStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="26dp"
-                    android:text="@{weather.weather.get(0).main}"
+                    android:layout_marginStart="24dp"
+                    android:text="@{weather.weather.get(0).description}"
                     app:layout_constraintStart_toEndOf="@+id/hourlyImage"
                     app:layout_constraintTop_toTopOf="@+id/time" />
 
@@ -57,7 +60,7 @@
                     android:id="@+id/hourlyImage"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_marginStart="87dp"
+                    android:layout_marginStart="32dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="12dp"
                     android:scaleType="centerCrop"
@@ -71,11 +74,12 @@
                     android:id="@+id/hourlyTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="92dp"
+                    android:layout_marginStart="48dp"
                     android:layout_marginTop="24dp"
-                    android:text="@{String.valueOf(weather.main.temp)}"
+                    android:layout_marginEnd="16dp"
+                    android:text="@{String.valueOf((int) weather.main.minTemp)+'/'+String.valueOf((int) weather.main.maxTemp)+`°`}"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/hourlyWeatherStatus"
-                    app:layout_constraintStart_toStartOf="@+id/hourlyWeatherStatus"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>

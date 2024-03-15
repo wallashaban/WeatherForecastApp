@@ -13,4 +13,26 @@
     <string name="notification">Notifications</string>
     <string name="theme">Theme</string>
     <string name="apply">Apply</string>
+
+    <string name="celsius">Celsius</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="kelvin">Kelvin</string>
+    <!-- Light, Dark, System -->
+    <string name="light_mode">Light</string>
+    <string name="dark_mode">Dark</string>
+    <string name="system_mode">System</string>
+
+    <!-- English, Arabic -->
+    <string name="english_language">English</string>
+    <string name="arabic_language">Arabic</string>
+
+    <!-- GPS, Map -->
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
+
+    <!-- Meter/Sec, Mile/Hour -->
+    <string name="meter_per_second">Meter/Sec</string>
+    <string name="mile_per_hour">Mile/Hour</string>
+    <string name="today">Today</string>
+    <string name="fiveFaysWeather">Weather of the Next Five Days</string>
 </resources>

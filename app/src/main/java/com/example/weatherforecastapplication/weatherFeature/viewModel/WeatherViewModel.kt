@@ -1,5 +1,6 @@
 package com.example.weatherforecastapplication.weatherFeature.viewModel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,29 +12,37 @@ import com.example.weatherforecastapplication.weatherRepository.WeatherRepositor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class WeatherViewModel(private val _repo :WeatherRepository) :ViewModel() {
+class WeatherViewModel(private val _repo: WeatherRepository) : ViewModel() {
 
     private var _currentWeather = MutableLiveData<CurrentWeather>()
-    var currentWeather:LiveData<CurrentWeather> = _currentWeather
+    var currentWeather: LiveData<CurrentWeather> = _currentWeather
     private var _fiveDaysForecast = MutableLiveData<FiveDaysForecast>()
-    var fiveDaysForecast:LiveData<FiveDaysForecast> = _fiveDaysForecast
+    var fiveDaysForecast: LiveData<FiveDaysForecast> = _fiveDaysForecast
 
-    fun getCurrentWeather(latitude: Double,
-                          longitude: Double,
-                          apiKey: String){
-        viewModelScope.launch(Dispatchers.IO){
-            val result = _repo.getCurrentWeather(latitude, longitude, apiKey)
+
+    fun getCurrentWeather(
+        latitude: Double,
+        longitude: Double,
+        apiKey: String,
+        units:String,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = _repo.getCurrentWeather(latitude, longitude, apiKey,units,)
             Log.i("TAG", "getCurrentWeather: $result")
             _currentWeather.postValue(result)
         }
 
+
     }
-    fun getFiveDaysForecast(latitude: Double,
-                            longitude: Double,
-                            apiKey: String)
-    {
+
+    fun getFiveDaysForecast(
+        latitude: Double,
+        longitude: Double,
+        apiKey: String,
+        units:String,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = _repo.getFiveDaysForecast(latitude, longitude, apiKey)
+            val result = _repo.getFiveDaysForecast(latitude, longitude, apiKey, units,)
             Log.i("TAG", "getFiveDaysForecast: $result")
             _fiveDaysForecast.postValue(result)
         }

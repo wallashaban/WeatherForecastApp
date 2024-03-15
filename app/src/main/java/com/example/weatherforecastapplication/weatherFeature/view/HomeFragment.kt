@@ -1,44 +1,74 @@
 package com.example.weatherforecastapplication.weatherFeature.view
 
+import android.Manifest
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Context.*
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
+import android.os.Looper
+import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.SuperscriptSpan
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.weatherforecastapplication.R
-import com.example.weatherforecastapplication.Shared.API_KEY
 import com.example.weatherforecastapplication.databinding.FragmentHomeBinding
-import com.example.weatherforecastapplication.databinding.HourlyWeatherLayoutBinding
+import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.network.RemoteDataSourceImpl
+import com.example.weatherforecastapplication.shared.API_KEY
+import com.example.weatherforecastapplication.shared.getCurrentUnit
+import com.example.weatherforecastapplication.shared.getDateFromDateTime
+import com.example.weatherforecastapplication.shared.getDayOfTheWeek
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModel
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModelFactory
 import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import java.time.LocalDate
+
 
 class HomeFragment : Fragment() {
     private lateinit var weatherViewModel: WeatherViewModel
     private lateinit var weatherViewModelFactory: WeatherViewModelFactory
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var manager:LinearLayoutManager
+    private lateinit var manager: LinearLayoutManager
     private lateinit var hourlyWeatherAdapter: HourlyWeatherAdapter
-    private lateinit var dailyanager:LinearLayoutManager
+    private lateinit var dailyanager: LinearLayoutManager
     private lateinit var dailyWeatherAdapter: DailyWeatherAdapter
+
+    //Location
+    private lateinit var fusedClient: FusedLocationProviderClient
+    private var latitude: Double? = 0.0
+    private var longitude: Double? = 0.0
+    val REQUEST_LOCATION_CODE = 5005
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         weatherViewModelFactory = WeatherViewModelFactory(
             WeatherRepositoryImpl.getInstance(RemoteDataSourceImpl)
         )
-        weatherViewModel = ViewModelProvider(this,weatherViewModelFactory)
+        weatherViewModel = ViewModelProvider(this, weatherViewModelFactory)
             .get(WeatherViewModel::class.java)
-          weatherViewModel.getCurrentWeather(29.9792,31.1342,API_KEY)
-        weatherViewModel.getFiveDaysForecast(29.9792,31.1342,API_KEY)
+
 
     }
 
@@ -55,40 +85,158 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         manager = LinearLayoutManager(requireContext())
-        manager .orientation = LinearLayoutManager.HORIZONTAL
-        hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext(),)
-        binding.hourlyWeatherRv .layoutManager = manager
-        binding.hourlyWeatherRv .adapter = hourlyWeatherAdapter
+        manager.orientation = LinearLayoutManager.HORIZONTAL
+        hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
+        binding.hourlyWeatherRv.layoutManager = manager
+        binding.hourlyWeatherRv.adapter = hourlyWeatherAdapter
 
-        dailyanager=LinearLayoutManager(requireContext())
+        dailyanager = LinearLayoutManager(requireContext())
         dailyanager.orientation = LinearLayoutManager.VERTICAL
         dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
         binding.dailyWeatherRv.layoutManager = dailyanager
         binding.dailyWeatherRv.adapter = dailyWeatherAdapter
 
+        weatherViewModel.fiveDaysForecast.observe(requireActivity()) {
+            val today = LocalDate.now()
+            val filteredWeather = it.list.filter { weather ->
+                getDateFromDateTime(weather.dateText) == today.toString()
+            }
+            hourlyWeatherAdapter.submitList(filteredWeather)
 
-        weatherViewModel.fiveDaysForecast.observe(requireActivity()){
-            hourlyWeatherAdapter.submitList(it.list)
-            dailyWeatherAdapter.submitList(it.list)
+            var day: String? = null
+            val filteredDailyWeather = mutableListOf<CurrentWeather>()
+            for (item in it.list) {
+                if (getDayOfTheWeek(item.dateText) != day) {
+                    filteredDailyWeather.add(item)
+                }
+
+                day = getDayOfTheWeek(item.dateText)
+            }
+
+            filteredDailyWeather.removeAt(0)
+            dailyWeatherAdapter.submitList(filteredDailyWeather)
         }
-
-
-        weatherViewModel.currentWeather.observe(requireActivity()){
-            Glide.with(view.context).load("https://openweathermap.org/img/wn/02d.png")
+        weatherViewModel.currentWeather.observe(requireActivity()) {
+            Glide.with(view.context)
+                .load("https://openweathermap.org/img/wn/${it.weather.get(0).icon}.png")
                 .apply(
                     RequestOptions().override(200, 200)
                         .placeholder(R.drawable.ic_launcher_foreground)
                         .error(R.drawable.ic_launcher_background)
                 )
                 .into(binding.imageView)
+          val unit =  if (getCurrentUnit(requireContext())=="metric")
+            "C"
+            else
+            ""
             binding.cityName.text = it.name
-            val spannableString = SpannableString("${it.main.temp}\u00B0C")
-            spannableString.setSpan(SuperscriptSpan(), it.main.temp.toString().length, spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            val spannableString = SpannableString("${it.main.temp}\u00B0$unit")
+            spannableString.setSpan(
+                SuperscriptSpan(), it.main.temp.toString().length,
+                spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
 
             binding.temp.text = spannableString//"${it.main.temp}°C"
-            binding.weatherStatus.text = it.weather[0].main
+            binding.weatherStatus.text = it.weather[0].description
         }
 
     }
 
+
+    override fun onStart() {
+        super.onStart()
+        Log.i("TAG", "onStart: ")
+        if (checkPermissions()) {
+            Log.i("TAG", "onStart: permission")
+            if (isLocationEnable())
+                getFreshLocation()
+            else
+                enableLocationServices()
+        } else {
+            Log.i("TAG", "onStart: request location")
+            requestLocation()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.i("TAG", "onRequestPermissionsResult: ")
+        if (requestCode == REQUEST_LOCATION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getFreshLocation()
+            }
+        }
+    }
+
+    private fun requestLocation() {
+        Log.i("TAG", "requestLocation: ")
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                ACCESS_COARSE_LOCATION,
+                ACCESS_FINE_LOCATION
+            ),
+            REQUEST_LOCATION_CODE
+        )
+        getFreshLocation()
+    }
+
+    private fun enableLocationServices() {
+        Toast.makeText(requireContext(), "Turn on location", Toast.LENGTH_SHORT).show()
+        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+        startActivity(intent)
+    }
+
+    private fun isLocationEnable(): Boolean {
+        val locationManager: LocationManager =
+            requireContext().getSystemService(LOCATION_SERVICE)
+                    as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getFreshLocation() {
+        val locationCallBack = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                val locationRequest = locationResult.lastLocation
+                latitude = locationRequest?.latitude
+                longitude = locationRequest?.longitude
+                weatherViewModel.getCurrentWeather(latitude!!, longitude!!, API_KEY,
+                    getCurrentUnit( requireContext()))
+                weatherViewModel.getFiveDaysForecast(latitude!!, longitude!!, API_KEY,
+                    getCurrentUnit(requireContext()))
+                fusedClient.removeLocationUpdates(this)
+            }
+        }
+        fusedClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedClient.requestLocationUpdates(
+            LocationRequest.Builder(0).apply {
+                setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
+            }.build(),
+            locationCallBack,
+            Looper.myLooper()
+        )
+    }
+
+    private fun checkPermissions(): Boolean {
+        var result = false
+        if ((ContextCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+            ||
+            (ContextCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
+            result = true
+        }
+        return result
+    }
 }
