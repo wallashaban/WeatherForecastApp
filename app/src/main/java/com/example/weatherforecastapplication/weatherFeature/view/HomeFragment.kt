@@ -1,10 +1,8 @@
 package com.example.weatherforecastapplication.weatherFeature.view
 
-import android.Manifest
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Context.*
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -31,10 +30,14 @@ import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentHomeBinding
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.network.RemoteDataSourceImpl
+import com.example.weatherforecastapplication.network.WeatherParam
 import com.example.weatherforecastapplication.shared.API_KEY
+import com.example.weatherforecastapplication.shared.getCurrentLang
+import com.example.weatherforecastapplication.shared.getCurrentLocation
 import com.example.weatherforecastapplication.shared.getCurrentUnit
 import com.example.weatherforecastapplication.shared.getDateFromDateTime
 import com.example.weatherforecastapplication.shared.getDayOfTheWeek
+import com.example.weatherforecastapplication.shared.saveSelectedLocatioToSharedPref
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModel
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModelFactory
 import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
@@ -61,13 +64,29 @@ class HomeFragment : Fragment() {
     private var latitude: Double? = 0.0
     private var longitude: Double? = 0.0
     val REQUEST_LOCATION_CODE = 5005
+       var lat: Float = 0F
+    var long: Float = 0F
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         weatherViewModelFactory = WeatherViewModelFactory(
             WeatherRepositoryImpl.getInstance(RemoteDataSourceImpl)
         )
         weatherViewModel = ViewModelProvider(this, weatherViewModelFactory)
             .get(WeatherViewModel::class.java)
+         lat =  arguments?.getFloat("latitude")?:0F
+         long =  arguments?.getFloat("longitude")?:0F
+
+        if(lat!=0F&& long!=0F)
+        {
+            val weatherParam = WeatherParam(
+                lat.toDouble(), long.toDouble(), API_KEY,
+                getCurrentUnit(requireActivity()),
+                getCurrentLang(requireActivity())
+            )
+            weatherViewModel.getCurrentWeather(weatherParam)
+            weatherViewModel.getFiveDaysForecast(weatherParam)
+        }
 
 
     }
@@ -83,6 +102,12 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+//        if(getCurrentLocation(requireContext())=="map")
+//        {
+//            val action =
+//                HomeFragmentDirections.actionHomeFragmentToMapFragment()
+//            Navigation.findNavController(requireView()).navigate(action)
+//        }
 
         manager = LinearLayoutManager(requireContext())
         manager.orientation = LinearLayoutManager.HORIZONTAL
@@ -145,11 +170,15 @@ class HomeFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+       // applyLang(requireContext())
+        //applyMode(requireContext())
         Log.i("TAG", "onStart: ")
         if (checkPermissions()) {
             Log.i("TAG", "onStart: permission")
-            if (isLocationEnable())
-                getFreshLocation()
+            if (isLocationEnable()) {
+                if(lat==0F&& long==0F)
+                    getFreshLocation()
+            }
             else
                 enableLocationServices()
         } else {
@@ -203,14 +232,20 @@ class HomeFragment : Fragment() {
     private fun getFreshLocation() {
         val locationCallBack = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                val locationRequest = locationResult.lastLocation
-                latitude = locationRequest?.latitude
-                longitude = locationRequest?.longitude
-                weatherViewModel.getCurrentWeather(latitude!!, longitude!!, API_KEY,
-                    getCurrentUnit( requireContext()))
-                weatherViewModel.getFiveDaysForecast(latitude!!, longitude!!, API_KEY,
-                    getCurrentUnit(requireContext()))
-                fusedClient.removeLocationUpdates(this)
+                if (isAdded) {
+                    val locationRequest = locationResult.lastLocation
+                    latitude = locationRequest?.latitude
+                    longitude = locationRequest?.longitude
+                    val weatherParam = WeatherParam(
+                        latitude!!, longitude!!, API_KEY,
+                        getCurrentUnit(requireActivity()),
+                        getCurrentLang(requireActivity())
+                    )
+                    weatherViewModel.getCurrentWeather(weatherParam)
+                    weatherViewModel.getFiveDaysForecast(weatherParam)
+                    fusedClient.removeLocationUpdates(this)
+
+                }
             }
         }
         fusedClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -222,6 +257,7 @@ class HomeFragment : Fragment() {
             Looper.myLooper()
         )
     }
+
 
     private fun checkPermissions(): Boolean {
         var result = false

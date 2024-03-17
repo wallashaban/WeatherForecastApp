@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.model.FiveDaysForecast
 import com.example.weatherforecastapplication.network.RemoteDataSource
+import com.example.weatherforecastapplication.network.WeatherParam
 
 class WeatherRepositoryImpl private constructor(
     private var remoteDataSource: RemoteDataSource
@@ -25,12 +26,9 @@ class WeatherRepositoryImpl private constructor(
     }
 
     override suspend fun getCurrentWeather(
-        latitude: Double,
-        longitude: Double,
-        apiKey: String,
-        units:String,
+        weatherParam: WeatherParam
     ): CurrentWeather {
-        return remoteDataSource.getCurrentWeather(latitude, longitude, apiKey,units)
+        return remoteDataSource.getCurrentWeather(weatherParam)
     }
 
     override suspend fun getCurrentWeatherUsingRoom(date: String) {
@@ -38,11 +36,8 @@ class WeatherRepositoryImpl private constructor(
     }
 
     override suspend fun getFiveDaysForecast(
-        latitude: Double,
-        longitude: Double,
-        apiKey: String,
-        units:String,
+        weatherParam: WeatherParam
     ): FiveDaysForecast {
-        return remoteDataSource.getFiveDaysForecast(latitude, longitude, apiKey,units)
+        return remoteDataSource.getFiveDaysForecast(weatherParam)
     }
 }

@@ -20,6 +20,7 @@ import java.util.Locale
 
 const val BASE_URL: String = "https://api.openweathermap.org/data/2.5/"
 const val API_KEY: String = "93d6a7e396a4d256d304951fb4f21c3a"
+const val MAP_API_KEY: String = "AIzaSyBueNJuuCyZG5EmAYpfU2MYglQd-44YuT8"
 
 
 
@@ -122,14 +123,16 @@ fun updateLocale(language: String, activity: Activity) {
 
 // Themes functions
 fun saveSelectedModeToSharedPref(context: Context, mode: Int) {
-    val sharedPreferences = context.getSharedPreferences("mode", Context.MODE_PRIVATE)
-    val editor = sharedPreferences.edit()
-    editor.putInt("mode", mode)
-    editor.apply()
-    changeMode(mode)
+    if(getCurrentMode(context)==mode)
+        return
+    else {
+        val sharedPreferences = context.getSharedPreferences("mode", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putInt("mode", mode)
+        editor.apply()
+        changeMode(mode)
+    }
 }
-
-
 
 fun changeMode(mode: Int) {
     when (mode) {
@@ -189,4 +192,70 @@ fun saveSelectedUnitToSharedPref(context: Context, unit: String) {
     val editor = sharedPreferences.edit()
     editor.putString("unit", unit)
     editor.apply()
+}
+
+
+// Lang
+fun getCurrentLang(context: Context): String {
+    val sharedPreferences = context.getSharedPreferences("lang", Context.MODE_PRIVATE)
+    //Log.i("TAG", "getCurrentMode: shared pref $mode")
+    Log.i("TAG", "getCurrentLang: "+sharedPreferences.getString("lang", "sys_def")!!)
+    return sharedPreferences.getString("lang", "sys_def")!!
+}
+fun getLangSpinnerValue(context: Context): Int {
+    val sharedPreferences = context.getSharedPreferences("lang", Context.MODE_PRIVATE)
+    //Log.i("TAG", "getCurrentMode: shared pref $mode")
+    val temp = sharedPreferences.getString("lang", "sys_def")!!
+    return if(temp == "en")
+        0
+    else if (temp == "ar")
+        1
+    else
+        2
+}
+
+fun saveSelectedLangToSharedPref(context: Context, lang: String) {
+    val sharedPreferences = context.getSharedPreferences("lang", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.putString("lang", lang)
+    editor.apply()
+    Log.i("TAG", "saveSelectedLangToSharedPref: $lang")
+   // applyLang(context)
+}
+
+fun applyLang(context: Context) {
+    val lang = getCurrentLang(context)
+    if (lang == "ar")
+        LocaleHelper.setLocale(context, lang)
+    if (lang == "en")
+        LocaleHelper.setLocale(context, lang)
+    else
+        LocaleHelper.setLocale(context, "sys_def")
+}
+
+
+// location
+fun saveSelectedLocatioToSharedPref(context: Context, location: String) {
+    if(getCurrentLocation(context)==location)
+        return
+    else {
+        val sharedPreferences = context.getSharedPreferences("location", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("location", location)
+        editor.apply()
+    }
+}
+fun getCurrentLocation(context: Context): String {
+    val sharedPreferences = context.getSharedPreferences("location", Context.MODE_PRIVATE)
+    //Log.i("TAG", "getCurrentMode: shared pref $mode")
+    return sharedPreferences.getString("location", "gps")!!
+}
+
+fun getCurrentSpinnerLocationValue(context: Context): Int {
+    val sharedPreferences = context.getSharedPreferences("location", Context.MODE_PRIVATE)
+    return if (getCurrentLocation(context)=="gps")
+    {
+        0
+    }else
+        1
 }

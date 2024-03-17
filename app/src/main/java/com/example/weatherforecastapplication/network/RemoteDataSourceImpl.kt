@@ -19,22 +19,20 @@ object RemoteDataSourceImpl : RemoteDataSource {
         RetrofitHelper.retrofit.create(WeatherServices::class.java)
 
     override suspend fun getCurrentWeather(
-        latitude: Double,
-        longitude: Double,
-        apiKey: String,
-        units:String,
+        weatherParam: WeatherParam
     ): CurrentWeather {
-        return weatherServices.getCurrentWeather(latitude, longitude, apiKey,units)
+        return weatherServices.getCurrentWeather(weatherParam.latitude,
+           weatherParam. longitude, weatherParam. apiKey,weatherParam. units,
+            weatherParam.lang)
             .body()!!
     }
 
     override suspend fun getFiveDaysForecast(
-        latitude: Double,
-        longitude: Double,
-        apiKey: String,
-        units:String,
+        weatherParam: WeatherParam
     ): FiveDaysForecast {
-        return weatherServices.getFiveDaysForecast(latitude, longitude, apiKey,units)
+        return weatherServices.getFiveDaysForecast(weatherParam.latitude,
+            weatherParam. longitude, weatherParam. apiKey,weatherParam. units,
+            weatherParam.lang)
             .body()!!
     }
 }

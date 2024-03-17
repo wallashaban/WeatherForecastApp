@@ -15,7 +15,7 @@ interface WeatherServices {
         @Query("lon") longitude: Double,
         @Query("appid") apiKey: String,
         @Query("units") units: String ,
-        //@Query("lang") lang: String = "ar" ,
+        @Query("lang") lang: String ,
     )
             : Response<CurrentWeather>
 
@@ -25,7 +25,7 @@ interface WeatherServices {
         @Query("lon") longitude: Double,
         @Query("appid") apiKey: String,
         @Query("units") units: String,
-       // @Query("lang") lang: String = "ar"
+        @Query("lang") lang: String
     )
             : Response<FiveDaysForecast>
 }

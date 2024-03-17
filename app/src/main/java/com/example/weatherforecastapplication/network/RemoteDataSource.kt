@@ -5,10 +5,9 @@ import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.model.FiveDaysForecast
 
 interface RemoteDataSource {
-    suspend fun getCurrentWeather(latitude: Double, longitude: Double, apiKey: String,units:String )
+    suspend fun getCurrentWeather(weatherParam: WeatherParam)
             : CurrentWeather
 
-    suspend fun getFiveDaysForecast(latitude: Double, longitude: Double, apiKey: String,
-                                    units:String)
+    suspend fun getFiveDaysForecast(weatherParam: WeatherParam)
             : FiveDaysForecast
 }

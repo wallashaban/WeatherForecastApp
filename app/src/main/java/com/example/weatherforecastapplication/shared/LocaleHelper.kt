@@ -4,6 +4,7 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.preference.PreferenceManager
+import android.util.Log
 import java.util.Locale
 
 
@@ -22,16 +23,21 @@ object LocaleHelper {
     }
 
     private fun persist(context: Context, language: String) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val sharedPreferences = context.getSharedPreferences("lang", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("lang", language)
+        editor.apply()
+       /* val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = preferences.edit()
         editor.putString(SELECTED_LANGUAGE, language)
-        editor.apply()
+        editor.apply()*/
     }
 
     // the method is used update the language of application by creating
     // object of inbuilt Locale class and passing language argument to it
     @TargetApi(Build.VERSION_CODES.N)
     private fun updateResources(context: Context, language: String): Context {
+        Log.i("TAG", "updateResources: ")
         val locale = Locale(language)
         Locale.setDefault(locale)
         val configuration = context.resources.configuration
@@ -42,6 +48,7 @@ object LocaleHelper {
 
     @Suppress("deprecation")
     private fun updateResourcesLegacy(context: Context, language: String): Context {
+        Log.i("TAG", "updateResourcesLegacy: ")
         val locale = Locale(language)
         Locale.setDefault(locale)
         val resources = context.resources
