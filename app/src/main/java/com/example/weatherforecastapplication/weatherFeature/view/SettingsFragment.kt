@@ -19,12 +19,16 @@ import com.example.weatherforecastapplication.shared.getCurrentLang
 import com.example.weatherforecastapplication.shared.getCurrentLocation
 import com.example.weatherforecastapplication.shared.getCurrentMode
 import com.example.weatherforecastapplication.shared.getCurrentSpinnerLocationValue
+import com.example.weatherforecastapplication.shared.getCurrentWindUnit
 import com.example.weatherforecastapplication.shared.getLangSpinnerValue
 import com.example.weatherforecastapplication.shared.getTempSpinnerValue
+import com.example.weatherforecastapplication.shared.getWindUnitSpinnerValue
 import com.example.weatherforecastapplication.shared.saveSelectedLangToSharedPref
 import com.example.weatherforecastapplication.shared.saveSelectedLocatioToSharedPref
 import com.example.weatherforecastapplication.shared.saveSelectedModeToSharedPref
 import com.example.weatherforecastapplication.shared.saveSelectedUnitToSharedPref
+import com.example.weatherforecastapplication.shared.saveSelectedWindUnitToSharedPref
+
 class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
     private lateinit var lang:String
@@ -69,6 +73,34 @@ class SettingsFragment : Fragment() {
             getString(R.string.system_mode)
         )
         spinnerData(binding.themeSpinner,ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, themeItems))
+        binding.windSpinner.setSelection(getWindUnitSpinnerValue(requireContext()))
+        binding.windSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedItem = parent?.getItemAtPosition(position).toString()
+                when (selectedItem) {
+                    getString(R.string.meter_per_second) -> {
+                        if(getCurrentWindUnit(requireContext()) !="Meter/Sec") {
+                            saveSelectedWindUnitToSharedPref(requireContext(), "Meter/Sec")
+                        }
+
+                    }
+                    getString(R.string.mile_per_hour) -> {
+                        if(getCurrentLocation(requireContext())!="Mile/Hour") {
+                            saveSelectedWindUnitToSharedPref(requireContext(), "Mile/Hour")
+                        }
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+        }
         binding.locationSpinner.setSelection(getCurrentSpinnerLocationValue(requireContext()))
         binding.locationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(
@@ -81,9 +113,10 @@ class SettingsFragment : Fragment() {
                 when (selectedItem) {
                     getString(R.string.map) -> {
                         if(getCurrentLocation(requireContext())!="map") {
+                            Log.i("TAG", "Map: ")
                             saveSelectedLocatioToSharedPref(requireContext(), "map")
                             val action =
-                                SettingsFragmentDirections.actionSettingsFragmentToMapFragment()
+                                SettingsFragmentDirections.actionSettingsFragmentToMapFragment("map")
                             Navigation.findNavController(requireView()).navigate(action)
                         }
 
@@ -161,7 +194,7 @@ class SettingsFragment : Fragment() {
                 id: Long
             ) {
                 val selectedItem = parent?.getItemAtPosition(position).toString()
-                   onLangItemSelected(selectedItem)
+                                onLangItemSelected(selectedItem)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}

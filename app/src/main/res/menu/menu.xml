@@ -8,12 +8,13 @@
         android:icon="@drawable/home"
         android:title="@string/home" />
     <item
-        android:id="@+id/mapFragment"
+        android:id="@+id/favouritesFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:icon="@drawable/favorite"
         android:title="@string/favourites" />
     <item
+        android:id="@+id/alertFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:icon="@drawable/alert"
@@ -24,8 +25,4 @@
         android:layout_height="wrap_content"
         android:icon="@drawable/settings"
         android:title="@string/settings" />
-    <item
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="Item" />
 </menu>

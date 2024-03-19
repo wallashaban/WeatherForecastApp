@@ -11,8 +11,11 @@
         <item name="iconTint">@color/white</item>
         <item name="cardViewBackgroundColor">@color/lightNavyBlue</item>
         <item name="actionOverflowButtonStyle">@style/IconOverFlow</item>
-
+        <item name="floatingActionButtonStyle">@style/fabStyleDark</item>
+        <!--<item name="cardViewStyle">@style/fabStyleDark</item>-->
     </style>
+
+
 
 
     <style name="MyDrawerStyle" parent="Widget.Design.NavigationView">

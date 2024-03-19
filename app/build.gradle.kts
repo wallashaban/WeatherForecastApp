@@ -44,6 +44,10 @@ android {
 
 dependencies {
 
+
+    //work manager
+    implementation ("androidx.work:work-runtime-ktx:2.9.0")
+
     // navigation
     implementation ("androidx.navigation:navigation-fragment:2.7.7")
     implementation ("androidx.navigation:navigation-ui:2.7.7")
@@ -51,6 +55,7 @@ dependencies {
     //google play services location
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation ("com.google.android.libraries.places:places:3.3.0")
 
 
     //Glide

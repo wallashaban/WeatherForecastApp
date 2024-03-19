@@ -1,6 +1,7 @@
 package com.example.weatherforecastapplication.network
 
 import android.content.Context
+import com.example.weatherforecastapplication.alertFeature.model.AlertResult
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.model.FiveDaysForecast
 import com.example.weatherforecastapplication.shared.BASE_URL
@@ -21,18 +22,36 @@ object RemoteDataSourceImpl : RemoteDataSource {
     override suspend fun getCurrentWeather(
         weatherParam: WeatherParam
     ): CurrentWeather {
-        return weatherServices.getCurrentWeather(weatherParam.latitude,
-           weatherParam. longitude, weatherParam. apiKey,weatherParam. units,
-            weatherParam.lang)
+        return weatherServices.getCurrentWeather(
+            weatherParam.latitude,
+            weatherParam.longitude,
+            weatherParam.apiKey,
+            weatherParam.units,
+            weatherParam.lang
+        )
             .body()!!
     }
 
     override suspend fun getFiveDaysForecast(
         weatherParam: WeatherParam
     ): FiveDaysForecast {
-        return weatherServices.getFiveDaysForecast(weatherParam.latitude,
-            weatherParam. longitude, weatherParam. apiKey,weatherParam. units,
-            weatherParam.lang)
+        return weatherServices.getFiveDaysForecast(
+            weatherParam.latitude,
+            weatherParam.longitude,
+            weatherParam.apiKey,
+            weatherParam.units,
+            weatherParam.lang
+        )
             .body()!!
+    }
+
+    override suspend fun getAlertForWeather(weatherParam: WeatherParam): AlertResult {
+        return weatherServices.getAlertForWeather(
+            weatherParam.latitude,
+            weatherParam.longitude,
+            weatherParam.apiKey,
+            weatherParam.units,
+            weatherParam.lang
+        )
     }
 }

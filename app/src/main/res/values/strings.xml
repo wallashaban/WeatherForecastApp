@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WeatherForecastApplication</string>
+    <string name="app_name" translatable="false">WeatherForecastApplication</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="home">Home</string>
@@ -35,4 +35,11 @@
     <string name="mile_per_hour">Mile/Hour</string>
     <string name="today">Today</string>
     <string name="fiveFaysWeather">Weather of the Next Five Days</string>
+    <string name="favLocations">Favourite Locations</string>
+    <string name="pressure">Pressure</string>
+    <string name="ultraViolet">Ultra Violet</string>
+    <string name="cloud">Cloud</string>
+    <string name="visibilty">Visibilty</string>
+    <string name="humadity">Humadity</string>
+    <string name="save">Save this location?</string>
 </resources>

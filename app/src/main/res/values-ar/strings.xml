@@ -35,4 +35,11 @@
     <string name="today">اليوم</string>
     <string name="fiveFaysWeather">حالة الطقس للأيام الخمسة القادمة</string>
 
+    <string name="favLocations">المواقع المفضلة</string>
+    <string name="pressure">الضغط</string>
+    <string name="ultraViolet">الأشعةالبنفسجية</string>
+    <string name="cloud">السحاب</string>
+    <string name="visibilty">الرؤية</string>
+    <string name="humadity">الرطوبة</string>
+
 </resources>

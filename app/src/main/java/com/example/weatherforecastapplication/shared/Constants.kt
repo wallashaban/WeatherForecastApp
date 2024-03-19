@@ -1,26 +1,31 @@
 package com.example.weatherforecastapplication.shared
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.weatherforecastapplication.R
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-
+private const val TAG = "Constants"
 const val BASE_URL: String = "https://api.openweathermap.org/data/2.5/"
 const val API_KEY: String = "93d6a7e396a4d256d304951fb4f21c3a"
 const val MAP_API_KEY: String = "AIzaSyBueNJuuCyZG5EmAYpfU2MYglQd-44YuT8"
+const val FAVOURITES_TABLE: String = "favourites-44YuT8"
 
 
 
@@ -259,3 +264,32 @@ fun getCurrentSpinnerLocationValue(context: Context): Int {
     }else
         1
 }
+
+// wind Speed
+fun getCurrentWindUnit(context: Context): String {
+    val sharedPreferences = context.getSharedPreferences("windUnit", Context.MODE_PRIVATE)
+    //Log.i("TAG", "getCurrentMode: shared pref $mode")
+    return sharedPreferences.getString("windUnit", "Meter/Sec")!!
+}
+
+fun getWindUnitSpinnerValue(context: Context): Int {
+    val sharedPreferences = context.getSharedPreferences("windUnit", Context.MODE_PRIVATE)
+    //Log.i("TAG", "getCurrentMode: shared pref $mode")
+    return if(sharedPreferences.getString("windUnit", "Meter/Sec")=="Meter/Sec")
+        0
+    else
+        1
+}
+
+fun saveSelectedWindUnitToSharedPref(context: Context, windUnit: String) {
+
+        val sharedPreferences = context.getSharedPreferences("windUnit", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("windUnit", windUnit)
+        editor.apply()
+
+}
+
+
+// check google services
+

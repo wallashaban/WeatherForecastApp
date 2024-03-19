@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="fabStyleDark">
+        <item name="backgroundTint">#625D98</item>
+        <item name="elevation">32dp</item>
+    </style>
+</resources>

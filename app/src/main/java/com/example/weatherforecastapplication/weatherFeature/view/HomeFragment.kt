@@ -3,6 +3,7 @@ package com.example.weatherforecastapplication.weatherFeature.view
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context.*
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -26,8 +27,10 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.weatherforecastapplication.MainActivity
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentHomeBinding
+import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSourceImpl
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.network.RemoteDataSourceImpl
 import com.example.weatherforecastapplication.network.WeatherParam
@@ -35,12 +38,15 @@ import com.example.weatherforecastapplication.shared.API_KEY
 import com.example.weatherforecastapplication.shared.getCurrentLang
 import com.example.weatherforecastapplication.shared.getCurrentLocation
 import com.example.weatherforecastapplication.shared.getCurrentUnit
+import com.example.weatherforecastapplication.shared.getCurrentWindUnit
 import com.example.weatherforecastapplication.shared.getDateFromDateTime
 import com.example.weatherforecastapplication.shared.getDayOfTheWeek
 import com.example.weatherforecastapplication.shared.saveSelectedLocatioToSharedPref
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModel
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModelFactory
 import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -49,6 +55,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import java.time.LocalDate
 
+private const val TAG = "HomeFragment"
 
 class HomeFragment : Fragment() {
     private lateinit var weatherViewModel: WeatherViewModel
@@ -64,21 +71,25 @@ class HomeFragment : Fragment() {
     private var latitude: Double? = 0.0
     private var longitude: Double? = 0.0
     val REQUEST_LOCATION_CODE = 5005
-       var lat: Float = 0F
+    var lat: Float = 0F
     var long: Float = 0F
+    private val ERROR_DIALOG_REQUEST = 5005
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         weatherViewModelFactory = WeatherViewModelFactory(
-            WeatherRepositoryImpl.getInstance(RemoteDataSourceImpl)
+            WeatherRepositoryImpl.getInstance(
+                RemoteDataSourceImpl,
+                LocalDataSourceImpl.getInstance(requireContext())
+            )
         )
-        weatherViewModel = ViewModelProvider(this, weatherViewModelFactory)
+        weatherViewModel = ViewModelProvider(requireActivity(), weatherViewModelFactory)
             .get(WeatherViewModel::class.java)
-         lat =  arguments?.getFloat("latitude")?:0F
-         long =  arguments?.getFloat("longitude")?:0F
+        lat = arguments?.getFloat("latitude") ?: 0F
+        long = arguments?.getFloat("longitude") ?: 0F
 
-        if(lat!=0F&& long!=0F)
-        {
+        if (lat != 0F && long != 0F) {
             val weatherParam = WeatherParam(
                 lat.toDouble(), long.toDouble(), API_KEY,
                 getCurrentUnit(requireActivity()),
@@ -124,14 +135,15 @@ class HomeFragment : Fragment() {
         weatherViewModel.fiveDaysForecast.observe(requireActivity()) {
             val today = LocalDate.now()
             val filteredWeather = it.list.filter { weather ->
-                getDateFromDateTime(weather.dateText) == today.toString()
+                getDateFromDateTime(weather.dateText!!) == today.toString()
             }
+
             hourlyWeatherAdapter.submitList(filteredWeather)
 
             var day: String? = null
             val filteredDailyWeather = mutableListOf<CurrentWeather>()
             for (item in it.list) {
-                if (getDayOfTheWeek(item.dateText) != day) {
+                if (getDayOfTheWeek(item.dateText!!) != day) {
                     filteredDailyWeather.add(item)
                 }
 
@@ -142,7 +154,17 @@ class HomeFragment : Fragment() {
             dailyWeatherAdapter.submitList(filteredDailyWeather)
         }
         weatherViewModel.currentWeather.observe(requireActivity()) {
-            Glide.with(view.context)
+            var unit = "m/s"
+            if (getCurrentWindUnit(requireContext()) != "Meter/Sec") {
+                // val speed =  it.wind.speed * 2.23694
+                //it.wind.speed = speed
+                //  "%.2f".format(speed).toDouble()
+                unit = "m/h"
+            }
+            binding.unit = unit
+            binding.weather = it
+            Log.i("TAG", "onViewCreated: ${it.clouds.all}")
+            /* Glide.with(view.context)
                 .load("https://openweathermap.org/img/wn/${it.weather.get(0).icon}.png")
                 .apply(
                     RequestOptions().override(200, 200)
@@ -162,44 +184,60 @@ class HomeFragment : Fragment() {
             )
 
             binding.temp.text = spannableString//"${it.main.temp}°C"
-            binding.weatherStatus.text = it.weather[0].description
+            binding.weatherStatus.text = it.weather[0].description*/
+            weatherViewModel.saveCurrentWeatherToRoom(it)
         }
 
     }
 
+    init {
+        isServicesOK()
+    }
+
+    fun isServicesOK(): Boolean {
+        Log.d(TAG, "isServicesOK: checking google services version")
+        if (isAdded) {
+            val available =
+                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(requireContext())
+            if (available == ConnectionResult.SUCCESS) {
+                //everything is fine and the user can make map requests
+                Log.d(TAG, "isServicesOK: Google Play Services is working")
+                return true
+            } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
+                //an error occured but we can resolve it
+                Log.d(TAG, "isServicesOK: an error occured but we can fix it")
+
+                val dialog: Dialog = GoogleApiAvailability.getInstance()
+                    .getErrorDialog(requireActivity(), available, ERROR_DIALOG_REQUEST)!!
+                dialog.show()
+            } else {
+                Toast.makeText(requireContext(), "You can't make map requests", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+        return false
+    }
 
     override fun onStart() {
         super.onStart()
-       // applyLang(requireContext())
+        val search = requireActivity().findViewById<View>(R.id.search)
+        search.visibility = View.VISIBLE
+        // applyLang(requireContext())
         //applyMode(requireContext())
-        Log.i("TAG", "onStart: ")
-        if (checkPermissions()) {
-            Log.i("TAG", "onStart: permission")
-            if (isLocationEnable()) {
-                if(lat==0F&& long==0F)
-                    getFreshLocation()
-            }
-            else
-                enableLocationServices()
-        } else {
-            Log.i("TAG", "onStart: request location")
-            requestLocation()
-        }
+//        Log.i("TAG", "onStart: ")
+//        if (checkPermissions()) {
+//            Log.i("TAG", "onStart: permission")
+//            if (isLocationEnable()) {
+//                if (lat == 0F && long == 0F)
+//                    getFreshLocation()
+//            } else
+//                enableLocationServices()
+//        } else {
+//            Log.i("TAG", "onStart: request location")
+//            requestLocation()
+//        }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.i("TAG", "onRequestPermissionsResult: ")
-        if (requestCode == REQUEST_LOCATION_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getFreshLocation()
-            }
-        }
-    }
 
     private fun requestLocation() {
         Log.i("TAG", "requestLocation: ")
