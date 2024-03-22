@@ -1,8 +1,6 @@
 package com.example.weatherforecastapplication.favouritesFeature.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,12 +12,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentFavouritesBinding
+import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
 import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSourceImpl
 import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
-import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.shared.ApiState
+import com.example.weatherforecastapplication.shared.popMapFragmentFromTheBackStack
 import kotlinx.coroutines.launch
 
 
@@ -37,8 +35,9 @@ class FavouritesFragment : Fragment(){
         favViewModelFactory = FavouritesViewModel.Factory(
             LocalDataSourceImpl.getInstance(requireContext())
         )
-        favViewModel = ViewModelProvider(this, favViewModelFactory)
-            .get(FavouritesViewModel::class.java)
+        favViewModel = ViewModelProvider(
+            this, favViewModelFactory
+        )[FavouritesViewModel::class.java]
         favViewModel.getFavWeather()
     }
 
@@ -49,16 +48,11 @@ class FavouritesFragment : Fragment(){
         binding = FragmentFavouritesBinding.inflate(layoutInflater,container,false)
         return binding.root
     }
-
-    @SuppressLint("UnsafeRepeatOnLifecycleDetector")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // pop map fragment from the back stack
-        val navController=  Navigation.findNavController(requireView())
-        navController.popBackStack(R.id.mapFragment,true)
+        popMapFragmentFromTheBackStack(requireView())
 
-
-        val onDeleteClickListener ={weather: CurrentWeather->
+        val onDeleteClickListener ={weather: Favourites ->
             favViewModel.deleteWeatherFromFavourites(weather)
         }
         val onFavClickListener = {latitude:Double,longitude:Double->
@@ -84,7 +78,7 @@ class FavouritesFragment : Fragment(){
         }
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 favViewModel.favourites.collect { result ->
                     when (result) {
                         is ApiState.Success -> {

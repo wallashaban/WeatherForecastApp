@@ -3,19 +3,17 @@ package com.example.weatherforecastapplication.favouritesFeature.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
 import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSource
-import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.shared.ApiState
-import com.example.weatherforecastapplication.weatherRepository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class FavouritesViewModel(private val _localDataSource:LocalDataSource) :  ViewModel(){
-    private var _favourites = MutableStateFlow<ApiState>(ApiState.Loading)
+    private var _favourites = MutableStateFlow<ApiState<List<Favourites>>>(ApiState.Loading())
     var favourites  = _favourites.asStateFlow()
 
     fun getFavWeather(){
@@ -25,16 +23,15 @@ class FavouritesViewModel(private val _localDataSource:LocalDataSource) :  ViewM
              }.collect{
                  _favourites.emit(ApiState.Success(it))
              }
-
         }
     }
-    fun addWeatherToFavourites(weather: CurrentWeather){
+    fun addWeatherToFavourites(weather: Favourites){
         viewModelScope.launch(Dispatchers.IO) {
             _localDataSource.addWeatherToFavourites(weather)
         }
     }
 
-    fun deleteWeatherFromFavourites(weather: CurrentWeather){
+    fun deleteWeatherFromFavourites(weather: Favourites){
         viewModelScope.launch(Dispatchers.IO) {
             _localDataSource.deleteWeatherFromFavourites(weather)
         }

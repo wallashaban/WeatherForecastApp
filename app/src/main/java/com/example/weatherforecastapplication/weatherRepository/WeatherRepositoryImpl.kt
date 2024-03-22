@@ -1,6 +1,9 @@
 package com.example.weatherforecastapplication.weatherRepository
 
 import android.content.Context
+import com.example.weatherforecastapplication.alertFeature.model.AlertResult
+import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
+import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
 import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSource
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.model.FiveDaysForecast
@@ -29,32 +32,37 @@ class WeatherRepositoryImpl private constructor(
         }
     }
 
-    override suspend fun getCurrentWeather(
-        weatherParam: WeatherParam
-    ): CurrentWeather {
-        return remoteDataSource.getCurrentWeather(weatherParam)
-    }
-
-
-    override suspend fun getCurrentWeatherFromRoom(id: Int): CurrentWeather {
-       return localDataSource.getCurrentWeatherFromRoom(id)
-    }
-
     override suspend fun getFiveDaysForecast(
         weatherParam: WeatherParam
-    ): FiveDaysForecast {
+    ): Flow<FiveDaysForecast> {
         return remoteDataSource.getFiveDaysForecast(weatherParam)
     }
 
-    override fun getAllFavouritesWeather(): Flow<List<CurrentWeather>> {
+    override suspend fun getAlertForWeather(weatherParam: WeatherParam): Flow<AlertResult> {
+        return remoteDataSource.getAlertForWeather(weatherParam)
+    }
+
+    override suspend fun saveAlert(alert: AlertRoom) {
+        localDataSource.saveAlert(alert)
+    }
+
+    override suspend fun deleteAlert(alert: AlertRoom) {
+        localDataSource.deleteAlert(alert)
+    }
+
+    override fun getAlerts(): Flow<List<AlertRoom>> {
+        return localDataSource.getAlerts()
+    }
+
+    override fun getAllFavouritesWeather(): Flow<List<Favourites>> {
        return localDataSource.getAllFavouritesWeather()
     }
 
-    override suspend fun addWeatherToFavourites(weather: CurrentWeather) {
+    override suspend fun addWeatherToFavourites(weather: Favourites) {
         localDataSource.addWeatherToFavourites(weather)
     }
 
-    override suspend fun deleteWeatherFromFavourites(weather: CurrentWeather) {
+    override suspend fun deleteWeatherFromFavourites(weather: Favourites) {
         localDataSource.deleteWeatherFromFavourites(weather)
     }
 }

@@ -6,9 +6,12 @@
     <data>
         <variable
             name="weather"
-            type="com.example.weatherforecastapplication.model.CurrentWeather" />
+            type="com.example.weatherforecastapplication.model.FiveDaysForecast" />
         <variable
-            name="unit"
+            name="windUnit"
+            type="String" />
+        <variable
+            name="tempUnit"
             type="String" />
 
     </data>
@@ -20,9 +23,21 @@
         android:layout_marginEnd="16dp"
         tools:context=".weatherFeature.view.HomeFragment">
 
+        <ProgressBar
+            android:id="@+id/homeProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ScrollView
+            android:id="@+id/homeData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -58,7 +73,7 @@
                             android:layout_marginStart="160dp"
                             android:layout_marginTop="16dp"
                             android:layout_marginEnd="156dp"
-                            android:text="@{weather.name}"
+                            android:text="@{weather.city.name}"
                             android:textAlignment="center"
                             android:textSize="24sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +85,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:text="@{weather.weather.get(0).description}"
+                            android:text="@{weather.list[0].weather.get(0).description}"
                             android:textSize="16sp"
                             app:layout_constraintEnd_toEndOf="@+id/cityName"
                             app:layout_constraintStart_toStartOf="@+id/cityName"
@@ -84,10 +99,10 @@
                             android:layout_marginTop="8dp"
                             android:layout_marginEnd="55dp"
                             android:scaleType="centerCrop"
-                            app:url="@{weather.weather.get(0).icon}"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/weatherStatus"
+                            app:url="@{weather.list[0].weather.get(0).icon}"
                             tools:src="@tools:sample/backgrounds/scenic" />
 
                         <TextView
@@ -99,7 +114,7 @@
                             android:layout_marginEnd="181dp"
                             android:layout_marginBottom="8dp"
                             android:paddingTop="8dp"
-                            android:text="@{String.valueOf(weather.main.temp)}"
+                            android:text="@{tempUnit}"
                             android:textSize="24sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -139,6 +154,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/hourlyWeatherRv" />
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cardView3"
                     style="@style/CardViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -167,7 +183,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text='@{String.valueOf(weather.main.pressure)+" hpa"}'
+                            android:text='@{String.valueOf(weather.list[0].main.pressure)+" hpa"}'
                             android:textSize="11sp"
                             app:layout_constraintStart_toStartOf="@+id/textView12"
                             app:layout_constraintTop_toBottomOf="@+id/imageView2" />
@@ -197,7 +213,7 @@
                             android:id="@+id/humadity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text='@{String.valueOf(weather.main.humidity)+" %"}'
+                            android:text='@{String.valueOf(weather.list[0].main.humidity)+" %"}'
                             android:textSize="11sp"
                             app:layout_constraintStart_toStartOf="@+id/imageView10"
                             app:layout_constraintTop_toTopOf="@+id/pressure" />
@@ -226,7 +242,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="@{String.valueOf( weather.wind.speed)+ unit}"
+                            android:text="@{String.valueOf( weather.list[0].wind.speed)+ windUnit}"
                             android:textSize="11sp"
                             app:layout_constraintStart_toStartOf="@+id/imageView11"
                             app:layout_constraintTop_toTopOf="@+id/pressure" />
@@ -257,7 +273,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="4dp"
-                            android:text='@{String.valueOf(weather.clouds.all)+" %"}'
+                            android:text='@{String.valueOf(weather.list[0].clouds.all)+" %"}'
                             android:textSize="11sp"
                             app:layout_constraintStart_toStartOf="@+id/pressure"
                             app:layout_constraintTop_toBottomOf="@+id/imageView12" />
@@ -286,7 +302,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="@{String.valueOf(weather.main.feelsLike)}"
+                            android:text="@{String.valueOf(weather.list[0].main.feelsLike)}"
                             android:textSize="11sp"
                             app:layout_constraintStart_toStartOf="@+id/humadity"
                             app:layout_constraintTop_toBottomOf="@+id/imageView13" />
@@ -315,7 +331,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text='@{String.valueOf(weather.visibility)+" m"}'
+                            android:text='@{String.valueOf(weather.list[0].visibility)+" m"}'
                             android:textSize="11sp"
                             app:layout_constraintStart_toStartOf="@+id/wind"
                             app:layout_constraintTop_toBottomOf="@+id/imageView14" />
@@ -334,7 +350,6 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -41,5 +41,7 @@
     <string name="cloud">Cloud</string>
     <string name="visibilty">Visibilty</string>
     <string name="humadity">Humadity</string>
+    <string name="meterPerSecond">m/s</string>
+    <string name="milePerHour">m/h</string>
     <string name="save">Save this location?</string>
 </resources>

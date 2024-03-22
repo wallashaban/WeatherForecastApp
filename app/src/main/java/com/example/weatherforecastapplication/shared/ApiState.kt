@@ -1,9 +1,8 @@
 package com.example.weatherforecastapplication.shared
 
-import com.example.weatherforecastapplication.model.CurrentWeather
 
-sealed class ApiState {
-    class Success(val data:List<CurrentWeather>):ApiState()
-    class Failure(val error:Throwable):ApiState()
-    object Loading:ApiState()
+sealed class ApiState<T> {
+    class Success<T>(val data:T):ApiState<T>()
+    class Failure<T>(val error:Throwable):ApiState<T>()
+    class Loading<T>:ApiState<T>()
 }

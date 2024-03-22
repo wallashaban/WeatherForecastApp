@@ -5,6 +5,8 @@ import com.example.weatherforecastapplication.alertFeature.model.AlertResult
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.model.FiveDaysForecast
 import com.example.weatherforecastapplication.shared.BASE_URL
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -21,8 +23,8 @@ object RemoteDataSourceImpl : RemoteDataSource {
 
     override suspend fun getCurrentWeather(
         weatherParam: WeatherParam
-    ): CurrentWeather {
-        return weatherServices.getCurrentWeather(
+    ): Flow<CurrentWeather> = flow {
+        val currentWeather =   weatherServices.getCurrentWeather(
             weatherParam.latitude,
             weatherParam.longitude,
             weatherParam.apiKey,
@@ -30,28 +32,32 @@ object RemoteDataSourceImpl : RemoteDataSource {
             weatherParam.lang
         )
             .body()!!
+        emit(currentWeather)
     }
 
-    override suspend fun getFiveDaysForecast(
-        weatherParam: WeatherParam
-    ): FiveDaysForecast {
-        return weatherServices.getFiveDaysForecast(
-            weatherParam.latitude,
-            weatherParam.longitude,
-            weatherParam.apiKey,
-            weatherParam.units,
-            weatherParam.lang
-        )
-            .body()!!
+    override suspend fun getFiveDaysForecast(weatherParam: WeatherParam)
+    : Flow<FiveDaysForecast>
+    = flow {
+        val fiveDaysWeather =
+            weatherServices.getFiveDaysForecast(
+                weatherParam.latitude,
+                weatherParam.longitude,
+                weatherParam.apiKey,
+                weatherParam.units,
+                weatherParam.lang
+            )
+                .body()!!
+        emit(fiveDaysWeather)
     }
+    override suspend fun getAlertForWeather(weatherParam: WeatherParam): Flow<AlertResult> =
+        flow {
+            weatherServices.getAlertForWeather(
+                weatherParam.latitude,
+                weatherParam.longitude,
+                weatherParam.apiKey,
+                weatherParam.units,
+                weatherParam.lang
+            ).alertResponse
+        }
 
-    override suspend fun getAlertForWeather(weatherParam: WeatherParam): AlertResult {
-        return weatherServices.getAlertForWeather(
-            weatherParam.latitude,
-            weatherParam.longitude,
-            weatherParam.apiKey,
-            weatherParam.units,
-            weatherParam.lang
-        )
-    }
 }

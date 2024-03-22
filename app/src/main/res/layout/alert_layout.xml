@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="weather"
-            type="com.example.weatherforecastapplication.favouritesFeature.model.Favourites" />
+            name="alert"
+            type="com.example.weatherforecastapplication.alertFeature.model.AlertRoom" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,14 +33,14 @@
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="@{weather.name}"
+                    android:text="@{alert.name}"
                     android:textAlignment="textStart"
                     android:textSize="16sp"
                     app:layout_constraintStart_toEndOf="@+id/imageView9"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/delete"
+                    android:id="@+id/deleteAlert"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -54,7 +54,28 @@
                     android:layout_marginTop="8dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/location" />
+                    app:srcCompat="@drawable/alarm" />
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@{alert.date}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/cityName"
+                    app:layout_constraintTop_toBottomOf="@+id/cityName" />
+
+                <TextView
+                    android:id="@+id/alertTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@{alert.time}"
+                    app:layout_constraintStart_toEndOf="@+id/date"
+                    app:layout_constraintTop_toBottomOf="@+id/cityName" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>

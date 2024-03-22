@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.weatherforecastapplication.weatherFeature.view.SettingsFragment"
+        android:name="com.example.weatherforecastapplication.settings.view.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" >
         <action
@@ -70,5 +70,11 @@
         <action
             android:id="@+id/action_alertFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
+        <argument
+            android:name="latitude"
+            app:argType="float" />
+        <argument
+            android:name="longitude"
+            app:argType="float" />
     </fragment>
 </navigation>

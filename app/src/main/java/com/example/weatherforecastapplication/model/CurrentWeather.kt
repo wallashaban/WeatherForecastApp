@@ -1,19 +1,12 @@
 package com.example.weatherforecastapplication.model
 
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import com.example.weatherforecastapplication.shared.FAVOURITES_TABLE
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 
 //@Fts4
-@Entity(tableName = "favourites")
 data class CurrentWeather(
-    val coord: Coord,
-    @PrimaryKey
     val id: Int,
     @SerializedName("dt_txt")
     val dateText: String?,
@@ -117,11 +110,7 @@ class SystemConverter {
 }
 
 
-data class Coord(
-    @SerializedName("lat")
-    val latitude:Double,
-    @SerializedName("lon")
-    val longitude:Double)
+
 
 data class Wind(
     var speed: Double,

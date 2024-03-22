@@ -1,26 +1,62 @@
 package com.example.weatherforecastapplication.alertFeature.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.weatherforecastapplication.alertFeature.model.Alert
+import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
+import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSource
 import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
 import com.example.weatherforecastapplication.network.RemoteDataSource
 import com.example.weatherforecastapplication.network.WeatherParam
+import com.example.weatherforecastapplication.shared.ApiState
+import com.example.weatherforecastapplication.weatherRepository.WeatherRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class AlertViewModel(private val _remoteDataSource: RemoteDataSource) : ViewModel() {
-
+class AlertViewModel(private val _repo: WeatherRepository) : ViewModel() {
+    private val _alerts = MutableStateFlow<ApiState<List<AlertRoom>>>(ApiState.Loading())
+    val alerts = _alerts.asStateFlow()
 
     fun getAlertForWeather(weatherParam: WeatherParam){
         viewModelScope.launch {
-            _remoteDataSource.getAlertForWeather(weatherParam)
+            _repo.getAlertForWeather(weatherParam)
         }
     }
-    class Factory(private val _remoteDataSource: RemoteDataSource) :
+
+    fun saveAlert(alert: AlertRoom){
+        Log.i("AlertFragment", "saveAlert: before")
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.i("AlertFragment", "saveAlert:in ")
+            _repo.saveAlert(alert)
+            Log.i("AlertFragment", "saveAlert: after")
+        }
+    }
+    fun deleteAlert(alert: AlertRoom){
+        viewModelScope.launch(Dispatchers.IO) {
+            _repo.deleteAlert(alert)
+        }
+    }
+
+    fun getAlert(){
+        viewModelScope.launch(Dispatchers.IO) {
+            _repo.getAlerts().catch {
+                _alerts.emit(ApiState.Failure(it))
+            }.collectLatest {
+                _alerts.emit(ApiState.Success(it))
+            }
+        }
+    }
+    class Factory(private val _repo: WeatherRepository) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return if (modelClass.isAssignableFrom(AlertViewModel::class.java)) {
-                AlertViewModel(_remoteDataSource) as T
+                AlertViewModel(_repo) as T
             } else {
                 throw IllegalArgumentException("ViewModel class not found")
             }
