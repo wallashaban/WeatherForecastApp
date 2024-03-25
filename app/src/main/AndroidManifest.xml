@@ -5,9 +5,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
 
 
 
@@ -22,6 +25,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WeatherForecastApplication"
         tools:targetApi="31">
+        <service
+            android:name=".alertFeature.model.ForegroundService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".BaseActivity"
             android:exported="false" />
@@ -34,11 +42,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".alertFeature.model.AlarmReceiver"/>
+
+        <receiver android:name=".alertFeature.model.AlarmReceiver" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBueNJuuCyZG5EmAYpfU2MYglQd-44YuT8" />
-
     </application>
 
 </manifest>

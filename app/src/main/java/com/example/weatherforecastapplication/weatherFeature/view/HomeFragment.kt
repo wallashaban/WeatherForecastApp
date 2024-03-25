@@ -7,14 +7,12 @@ import android.content.Context.*
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.SuperscriptSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -43,7 +41,7 @@ import com.example.weatherforecastapplication.shared.enableLocationServices
 import com.example.weatherforecastapplication.shared.getDateFromDateTime
 import com.example.weatherforecastapplication.shared.getDayOfTheWeek
 import com.example.weatherforecastapplication.shared.isLocationEnable
-import com.example.weatherforecastapplication.shared.requestLocation
+import com.example.weatherforecastapplication.shared.requestPermission
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModel
 import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -173,6 +171,32 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+       /* registerForActivityResult(ActivityResultContracts.RequestPermission(),
+            object : ActivityResultCallback<Boolean>{
+                override fun onActivityResult(result: Boolean) {
+                    Log.i(TAG, "onActivityResult: ")
+                }
+            })*/
+
+        val result =
+            registerForActivityResult(ActivityResultContracts.RequestPermission())
+            {isGranted ->
+            if (isGranted){
+                Log.i(TAG, "onViewCreated: Granted")
+                if (isLocationEnable(requireContext())) {
+                    Log.i(TAG, "onStart: isLocation  enabled")
+                    if (lat == 0F && long == 0F)
+                        getFreshLocation()
+                } else {
+                    enableLocationServices(requireActivity())
+                    Log.i(TAG, "onStart: enable location")
+                }
+            }else{
+                Log.i(TAG, "onViewCreated: Not Granted")
+                requestPermission(requireActivity())
+            }
+        }
+        result.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 weatherViewModel.fiveDaysForecast.collect { result ->
@@ -209,6 +233,28 @@ class HomeFragment : Fragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.i(TAG, "onStart: ")
+        val search = requireActivity().findViewById<View>(R.id.search)
+        search.visibility = View.VISIBLE
+//        if (checkPermissions()) {
+//            Log.i(TAG, "onStart: permission")
+//            if (isLocationEnable(requireContext())) {
+//                Log.i(TAG, "onStart: isLocation  enabled")
+//                if (lat == 0F && long == 0F)
+//                    getFreshLocation()
+//            } else {
+//                enableLocationServices(requireActivity())
+//                Log.i(TAG, "onStart: enable location")
+//            }
+//        } else {
+//            Log.i(TAG, "onStart: request location")
+//           // requestPermission(requireActivity())
+//        }
+        Log.i(TAG, "onStart: End")
+
+    }
     private fun setDailyWeather(result: ApiState.Success<FiveDaysForecast>) {
         var day: String? = null
         val filteredDailyWeather = mutableListOf<CurrentWeather>()
@@ -240,27 +286,7 @@ class HomeFragment : Fragment() {
         binding.weather = result.data
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.i(TAG, "onStart: ")
-        val search = requireActivity().findViewById<View>(R.id.search)
-        search.visibility = View.VISIBLE
-        if (checkPermissions()) {
-            Log.i(TAG, "onStart: permission")
-            if (isLocationEnable(requireContext())) {
-                Log.i(TAG, "onStart: isLocation  enabled")
-                if (lat == 0F && long == 0F)
-                    getFreshLocation()
-            } else {
-                enableLocationServices(requireActivity())
-                Log.i(TAG, "onStart: enable location")
-            }
-        } else {
-            Log.i(TAG, "onStart: request location")
-            requestLocation(requireActivity())
-        }
-        Log.i(TAG, "onStart: End")
-    }
+
 
     @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(
@@ -276,6 +302,8 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
+
 
 
     override fun onDestroy() {
@@ -335,13 +363,13 @@ class HomeFragment : Fragment() {
 
     private fun checkPermissions(): Boolean {
         var result = false
-        if ((ContextCompat.checkSelfPermission(
-                requireContext(),
+        if ((requireActivity().checkSelfPermission(
+               // requireContext(),
                 ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED)
             ||
-            (ContextCompat.checkSelfPermission(
-                requireContext(),
+            (requireActivity().checkSelfPermission(
+                //requireContext(),
                 ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED)
         ) {

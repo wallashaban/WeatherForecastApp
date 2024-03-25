@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Geocoder
 import android.location.LocationManager
+import android.os.Build
 import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableString
@@ -20,21 +21,24 @@ import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.databinding.BindingAdapter
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.weatherforecastapplication.R
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.log
+
 
 private const val TAG = "Constants"
-const val BASE_URL: String = "https://api.openweathermap.org/data/2.5/"
+const val BASE_URL: String = "https://api.openweathermap.org/"
 const val API_KEY: String = "93d6a7e396a4d256d304951fb4f21c3a"
 const val MAP_API_KEY: String = "AIzaSyBueNJuuCyZG5EmAYpfU2MYglQd-44YuT8"
 var WIND_UNIT :String = "m/s"
@@ -147,9 +151,9 @@ fun getWindUnitSpinnerValue(context: Context): Int {
 
 // check  location
 
-fun requestLocation(activity: Activity) {
+fun requestPermission(activity: Activity) {
     Log.i(TAG, "requestLocation: ")
-    ActivityCompat.requestPermissions(
+    requestPermissions(
         activity,
         arrayOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -225,9 +229,7 @@ fun getAddressFromCoordinates(context: Context,
     return addressText
 }
 
-
-
-fun showDatePickerDialog(context: Context) {
+fun showDatePickerDialog(context: Context,date:TextView) {
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
@@ -238,9 +240,13 @@ fun showDatePickerDialog(context: Context) {
 
     val datePickerDialog = DatePickerDialog(
         context,
-        DatePickerDialog.OnDateSetListener { view: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+        { view: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
             val selectedDate = "$year-${month + 1}-$dayOfMonth"
-            Toast.makeText(context, "Selected Date: $selectedDate", Toast.LENGTH_SHORT).show()
+            date.text = selectedDate
+            Toast.makeText(context,
+                "Selected Date: $selectedDate",
+                Toast.LENGTH_SHORT)
+                .show()
         },
         year,
         month,
@@ -251,16 +257,17 @@ fun showDatePickerDialog(context: Context) {
     datePickerDialog.show()
 }
 
-fun showTimePickerDialog(context: Context) {
+fun showTimePickerDialog(context: Context,time:TextView) {
     val calendar = Calendar.getInstance()
     val hour = calendar.get(Calendar.HOUR_OF_DAY)
     val minute = calendar.get(Calendar.MINUTE)
 
     val timePickerDialog = TimePickerDialog(
         context,
-        TimePickerDialog.OnTimeSetListener {
+        {
             view: TimePicker, hourOfDay: Int, minute: Int ->
             val selectedTime = "$hourOfDay:$minute"
+            time.text = selectedTime
             Toast.makeText(context, "Selected Time: $selectedTime", Toast.LENGTH_SHORT).show()
         },
         hour,
@@ -269,4 +276,29 @@ fun showTimePickerDialog(context: Context) {
     )
 
     timePickerDialog.show()
+}
+
+
+
+fun convertDateToMillis(dateString: String): Long {
+
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val date = dateFormat.parse(dateString)
+    return date?.time ?: 0L
+}
+fun convertTimeToMillis(timeString: String): Long {
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val date = timeFormat.parse(timeString)
+    return date?.time ?: 0L
+}
+
+
+
+fun checkOverlayPermission(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (!Settings.canDrawOverlays(context)) {
+            val myIntent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+           context.startActivity(myIntent)
+        }
+    }
 }

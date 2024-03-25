@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.weatherforecastapplication.alertFeature.model.Alert
+import com.example.weatherforecastapplication.alertFeature.model.AlertResult
 import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
 import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSource
 import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
@@ -18,14 +19,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 class AlertViewModel(private val _repo: WeatherRepository) : ViewModel() {
     private val _alerts = MutableStateFlow<ApiState<List<AlertRoom>>>(ApiState.Loading())
     val alerts = _alerts.asStateFlow()
 
+    private val _weatherAlert = MutableStateFlow<ApiState<AlertResult>>(ApiState.Loading())
+    val weatherAlert = _weatherAlert.asStateFlow()
+
+
     fun getAlertForWeather(weatherParam: WeatherParam){
         viewModelScope.launch {
-            _repo.getAlertForWeather(weatherParam)
+            _repo.getAlertForWeather(weatherParam).catch {
+                _weatherAlert.emit(ApiState.Failure(it))
+                Log.i("TAG", "getAlertForWeather: ")
+            }.collectLatest {
+                Log.i("TAG", "getAlertForWeather: ")
+                _weatherAlert.emit(ApiState.Success(it))
+            }
         }
     }
 

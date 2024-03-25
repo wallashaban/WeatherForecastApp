@@ -1,9 +1,13 @@
 package com.example.weatherforecastapplication.alertFeature.model
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.util.UUID
 
-@Entity(tableName = "alerts", primaryKeys = ["latitude","longitude"])
+@Entity(tableName = "alerts")
 data class AlertRoom (
+    @PrimaryKey
+    val id:UUID,
     val name:String,
     val time:String,
     val date:String,

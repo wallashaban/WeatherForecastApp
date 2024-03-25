@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
 
-@Database(entities = [Favourites::class,AlertRoom::class], version = 6, exportSchema = false)
+@Database(entities = [Favourites::class,AlertRoom::class], version = 7, exportSchema = false)
 abstract class WeatherDatabase : RoomDatabase() {
     abstract fun getWeatherFavouritesDao():FavouritesDao
     abstract fun getAlertsDao():AlertsDao
@@ -19,7 +19,7 @@ abstract class WeatherDatabase : RoomDatabase() {
                     klass = WeatherDatabase::class.java,
                     name = "weather"
                 )
-                    //.fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

@@ -1,5 +1,6 @@
 package com.example.weatherforecastapplication.network
 
+import com.example.weatherforecastapplication.alertFeature.model.AlertResponse
 import com.example.weatherforecastapplication.alertFeature.model.AlertResult
 import com.example.weatherforecastapplication.model.CurrentWeather
 import com.example.weatherforecastapplication.model.FiveDaysForecast

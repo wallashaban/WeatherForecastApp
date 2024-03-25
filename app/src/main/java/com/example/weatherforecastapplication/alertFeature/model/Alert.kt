@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 data class AlertResult(
     val alertResponse: AlertResponse,
-    val timeZone:String,
+    val timezone:String,
+    val lat: Double,
+    val lon: Double,
     )
 data class AlertResponse(val alerts: List<Alert>)
 data class Alert (

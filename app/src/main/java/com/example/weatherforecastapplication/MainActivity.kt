@@ -11,6 +11,7 @@ import com.example.weatherforecastapplication.databinding.ActivityMainBinding
 import com.example.weatherforecastapplication.shared.LocaleUtil
 import com.example.weatherforecastapplication.shared.Storage
 import com.example.weatherforecastapplication.shared.applyMode
+import com.example.weatherforecastapplication.shared.requestPermission
 
 private const val TAG = "MainActivity"
 class MainActivity : BaseActivity() {

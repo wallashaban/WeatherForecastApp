@@ -1,10 +1,15 @@
 package com.example.weatherforecastapplication.alertFeature.view
 
+import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -12,21 +17,36 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.alertFeature.model.AlarmItem
 import com.example.weatherforecastapplication.alertFeature.model.AlarmScheduler
 import com.example.weatherforecastapplication.alertFeature.model.AlarmSchedulerImpl
 import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
+import com.example.weatherforecastapplication.alertFeature.model.MyWorkManager
 import com.example.weatherforecastapplication.alertFeature.viewModel.AlertViewModel
+import com.example.weatherforecastapplication.databinding.DialogLayoutBinding
 import com.example.weatherforecastapplication.databinding.FragmentAlertBinding
 import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSourceImpl
 import com.example.weatherforecastapplication.network.RemoteDataSourceImpl
 import com.example.weatherforecastapplication.shared.ApiState
+import com.example.weatherforecastapplication.shared.checkOverlayPermission
+import com.example.weatherforecastapplication.shared.convertDateToMillis
+import com.example.weatherforecastapplication.shared.convertTimeToMillis
 import com.example.weatherforecastapplication.shared.getAddressFromCoordinates
 import com.example.weatherforecastapplication.shared.popMapFragmentFromTheBackStack
+import com.example.weatherforecastapplication.shared.showDatePickerDialog
+import com.example.weatherforecastapplication.shared.showTimePickerDialog
 import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "AlertFragment"
 class AlertFragment : Fragment() {
@@ -38,11 +58,9 @@ class AlertFragment : Fragment() {
     private lateinit var manager : LinearLayoutManager
     private  var lat:Float = 0F
     private var long:Float = 0F
-    private lateinit var scheduler: AlarmScheduler
-    private lateinit var alarmItem: AlarmItem
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        scheduler = AlarmSchedulerImpl(requireContext())
 
         alertFactory = AlertViewModel.Factory(
             WeatherRepositoryImpl.getInstance(
@@ -51,57 +69,23 @@ class AlertFragment : Fragment() {
             )
         )
         alertViewModel = ViewModelProvider(
-            this,alertFactory
+            requireActivity(),alertFactory
         )[AlertViewModel::class.java]
 
 
         lat = arguments?.getFloat("latitude") ?: 0F
         long = arguments?.getFloat("longitude") ?: 0F
-      /* if(lat!=0F&&long!=0F)
-       {
-           val name = getAddressFromCoordinates(
-               requireContext(),
-               lat.toDouble(),
-               long.toDouble(),
-           )
-           val alert = AlertRoom(
-               name,"12:45 pm","2024/3/22",
-               lat.toDouble(),
-               long.toDouble())
 
-           val alertDialog = AlertDialog(requireContext()) {
-
-               Log.i(TAG, "onCreate: Saved")
-           }
-           alertDialog.show()
-       }*/
-        val calendar = Calendar.getInstance()
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        calendar.set(year, month, day, hour, minute+1)
-        val alarmTimeMillis = calendar.timeInMillis
-        alarmItem = AlarmItem(alarmTimeMillis,
-            "oster ya rab")
         if(lat!=0F&&long!=0F) {
-            val name = getAddressFromCoordinates(
-                requireContext(),
-                lat.toDouble(),
-                long.toDouble(),
-            )
-            val alert = AlertRoom(
-                name, "12:45 pm", "2024/3/22",
-                lat.toDouble(),
-                long.toDouble()
-            )
-            alertViewModel.saveAlert(alert)
-            scheduler.scheduler(alarmItem)
+            checkOverlayPermission(requireContext())
+            val context = requireContext()
+            val alertDialog = AlertDialog(context,lat.toDouble(),long.toDouble(),
+                alertViewModel)
+
+            alertDialog.show()
         }
         alertViewModel.getAlert()
        }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -125,7 +109,7 @@ class AlertFragment : Fragment() {
         adapter = AlertsAdapter(requireContext())
         {
             alert -> alertViewModel.deleteAlert(alert)
-            scheduler.cansel(alarmItem)
+            WorkManager.getInstance(requireContext()).cancelWorkById(alert.id)
         }
 
         manager = LinearLayoutManager(requireContext())
@@ -135,6 +119,7 @@ class AlertFragment : Fragment() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+
                 alertViewModel.alerts.collectLatest {result ->
                     when(result)
                     {
