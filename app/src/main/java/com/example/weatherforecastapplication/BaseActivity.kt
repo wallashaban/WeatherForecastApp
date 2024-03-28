@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.weatherforecastapplication.shared.LocaleUtil
-import com.example.weatherforecastapplication.shared.MyApp
-import com.example.weatherforecastapplication.shared.Storage
+import com.example.weatherforecastapplication.utils.LocaleUtil
+import com.example.weatherforecastapplication.utils.MyApp
+import com.example.weatherforecastapplication.utils.Storage
 
 open class BaseActivity: AppCompatActivity() { //You can use your preferred activity instead of AppCompatActivity
     private lateinit var oldPrefLocaleCode : String

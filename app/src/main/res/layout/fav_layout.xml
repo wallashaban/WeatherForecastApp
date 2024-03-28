@@ -6,7 +6,7 @@
     <data>
         <variable
             name="weather"
-            type="com.example.weatherforecastapplication.favouritesFeature.model.Favourites" />
+            type="com.example.weatherforecastapplication.data.models.Favourites" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -7,29 +7,24 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.example.weatherforecastapplication.MainActivity
 import com.example.weatherforecastapplication.R
+import java.util.Locale.Category
 
 class AlertNotificationService(private val context: Context) {
 
-    private val notificationManager = context.getSystemService(Application.NOTIFICATION_SERVICE)
+    private val notificationManager = context.
+    getSystemService(Application.NOTIFICATION_SERVICE)
             as NotificationManager
-
-    @SuppressLint("RemoteViewLayout")
-    val remoteViews = RemoteViews(context.packageName, R.layout.notification_layout)
-
-
-    fun showAlertNotification(description:String){
-
-       // remoteViews.setTextViewText(R.id.titleTextView, degree)
-       // remoteViews.setTextViewText(R.id.firstPhraseTextView, description)
-        //remoteViews.setTextViewText(R.id.secondPhraseTextView, address)
-        notificationManager.notify(1,createAlertNotification(description))
+    fun showAlertNotification(description:String,icon:Bitmap){
+        notificationManager.notify(1,createAlertNotification(description,icon))
     }
 
-    private fun createAlertNotification(description: String): Notification {
+    private fun createAlertNotification(description: String,
+                                        icon:Bitmap): Notification {
         val intent = Intent(context, MainActivity::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivities(
             context,
@@ -41,8 +36,22 @@ class AlertNotificationService(private val context: Context) {
             .setSmallIcon(R.drawable.cloud_notification)
             .setContentTitle("Weather Alert")
             .setContentText(description)
-           // .setContent(remoteViews)
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setLargeIcon(icon)
             .setContentIntent(pendingIntent)
+            .build()
+    }
+    fun createForegroundServiceNotification() :Notification
+    {
+        val notificationBuilder = NotificationCompat.Builder(context,
+            ALERT_CHANNEL_ID
+        )
+       return  notificationBuilder.setOngoing(true)
+            .setContentTitle("Service running")
+            .setContentText("Displaying over other apps")
+            .setSmallIcon(R.drawable.cloud_notification)
+            .setPriority(NotificationManager.IMPORTANCE_MIN)
+            .setCategory(Notification.CATEGORY_SERVICE)
             .build()
     }
     companion object{

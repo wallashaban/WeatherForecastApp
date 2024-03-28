@@ -4,22 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.weatherforecastapplication.alertFeature.model.Alert
-import com.example.weatherforecastapplication.alertFeature.model.AlertResult
-import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
-import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSource
-import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
-import com.example.weatherforecastapplication.network.RemoteDataSource
-import com.example.weatherforecastapplication.network.WeatherParam
-import com.example.weatherforecastapplication.shared.ApiState
-import com.example.weatherforecastapplication.weatherRepository.WeatherRepository
+import com.example.weatherforecastapplication.data.models.AlertResult
+import com.example.weatherforecastapplication.data.models.AlertRoom
+import com.example.weatherforecastapplication.data.models.WeatherParam
+import com.example.weatherforecastapplication.utils.ApiState
+import com.example.weatherforecastapplication.data.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 class AlertViewModel(private val _repo: WeatherRepository) : ViewModel() {
     private val _alerts = MutableStateFlow<ApiState<List<AlertRoom>>>(ApiState.Loading())

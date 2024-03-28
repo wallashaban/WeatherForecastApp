@@ -1,7 +1,6 @@
 package com.example.weatherforecastapplication.favouritesFeature.view
 
-import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
-import com.example.weatherforecastapplication.model.CurrentWeather
+import com.example.weatherforecastapplication.data.models.Favourites
 
 interface OnDeleteClickListener {
     fun onFavClickListener(weather: Favourites) //(weather:Favourites)->Unit

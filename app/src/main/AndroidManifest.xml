@@ -15,7 +15,7 @@
 
 
     <application
-        android:name=".shared.MyApp"
+        android:name=".utils.MyApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -28,6 +28,7 @@
         <service
             android:name=".alertFeature.model.ForegroundService"
             android:enabled="true"
+            android:foregroundServiceType="mediaPlayback"
             android:exported="true"></service>
 
         <activity

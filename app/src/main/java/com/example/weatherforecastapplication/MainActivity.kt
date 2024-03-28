@@ -8,10 +8,11 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.example.weatherforecastapplication.databinding.ActivityMainBinding
-import com.example.weatherforecastapplication.shared.LocaleUtil
-import com.example.weatherforecastapplication.shared.Storage
-import com.example.weatherforecastapplication.shared.applyMode
-import com.example.weatherforecastapplication.shared.requestPermission
+import com.example.weatherforecastapplication.utils.LocaleUtil
+import com.example.weatherforecastapplication.utils.Storage
+import com.example.weatherforecastapplication.utils.applyMode
+import com.example.weatherforecastapplication.utils.checkConnectivity
+import com.example.weatherforecastapplication.utils.showSnackbar
 
 private const val TAG = "MainActivity"
 class MainActivity : BaseActivity() {
@@ -20,6 +21,11 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+     /*   Thread {
+            WeatherDatabase.getInstance(this).clearAllTables();
+            this.deleteDatabase("weather");
+        }.start()*/
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         applyMode(applicationContext)
@@ -35,10 +41,15 @@ class MainActivity : BaseActivity() {
             Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupWithNavController(binding.navigationView, navController)
         binding.search.setOnClickListener {
-            val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-            val navController = navHostFragment.navController
-            val destinationFragmentId = R.id.mapFragment
-            navController.navigate(destinationFragmentId)
+            if(checkConnectivity(this)) {
+                val navHostFragment =
+                    supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+                val navController = navHostFragment.navController
+                val destinationFragmentId = R.id.mapFragment
+                navController.navigate(destinationFragmentId)
+            }else{
+                showSnackbar(this,getString(R.string.noInternetMessage))
+            }
         }
     }
     override fun onSupportNavigateUp(): Boolean {

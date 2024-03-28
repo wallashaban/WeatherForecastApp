@@ -3,16 +3,16 @@ package com.example.weatherforecastapplication.favouritesFeature.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
-import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSource
-import com.example.weatherforecastapplication.shared.ApiState
+import com.example.weatherforecastapplication.data.models.Favourites
+import com.example.weatherforecastapplication.data.local.LocalDataSource
+import com.example.weatherforecastapplication.utils.ApiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class FavouritesViewModel(private val _localDataSource:LocalDataSource) :  ViewModel(){
+class FavouritesViewModel(private val _localDataSource: LocalDataSource) :  ViewModel(){
     private var _favourites = MutableStateFlow<ApiState<List<Favourites>>>(ApiState.Loading())
     var favourites  = _favourites.asStateFlow()
 

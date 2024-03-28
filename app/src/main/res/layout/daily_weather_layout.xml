@@ -6,7 +6,7 @@
     <data>
         <variable
             name="weather"
-            type="com.example.weatherforecastapplication.model.CurrentWeather" />
+            type="com.example.weatherforecastapplication.data.models.CurrentWeather" />
 
     </data>
 

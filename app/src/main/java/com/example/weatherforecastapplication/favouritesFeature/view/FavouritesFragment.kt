@@ -12,12 +12,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentFavouritesBinding
-import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
-import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSourceImpl
+import com.example.weatherforecastapplication.data.models.Favourites
+import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
 import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
-import com.example.weatherforecastapplication.shared.ApiState
-import com.example.weatherforecastapplication.shared.popMapFragmentFromTheBackStack
+import com.example.weatherforecastapplication.utils.ApiState
+import com.example.weatherforecastapplication.utils.checkConnectivity
+import com.example.weatherforecastapplication.utils.popMapFragmentFromTheBackStack
+import com.example.weatherforecastapplication.utils.showSnackbar
 import kotlinx.coroutines.launch
 
 
@@ -28,8 +31,7 @@ class FavouritesFragment : Fragment(){
     private lateinit var favViewModelFactory: FavouritesViewModel.Factory
     private lateinit var manager: LinearLayoutManager
     private lateinit var adapter: FavouritesAdapter
-    private var lat = 0F
-    private var long = 0F
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         favViewModelFactory = FavouritesViewModel.Factory(
@@ -56,10 +58,15 @@ class FavouritesFragment : Fragment(){
             favViewModel.deleteWeatherFromFavourites(weather)
         }
         val onFavClickListener = {latitude:Double,longitude:Double->
-            val action= FavouritesFragmentDirections
-                .actionFavouritesFragmentToHomeFragment(
-                    latitude.toFloat(),longitude.toFloat())
-            Navigation.findNavController(requireView()).navigate(action)
+            if(checkConnectivity(requireContext())) {
+                val action = FavouritesFragmentDirections
+                    .actionFavouritesFragmentToHomeFragment(
+                        latitude.toFloat(), longitude.toFloat()
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
+            }else{
+                showSnackbar(requireActivity(),getString(R.string.noInternetMessage))
+            }
         }
 
         adapter = FavouritesAdapter(requireContext(),
@@ -71,10 +78,14 @@ class FavouritesFragment : Fragment(){
         binding.favouritesRV.adapter = adapter
 
         binding.floatingActionButton.setOnClickListener{
-            val action= FavouritesFragmentDirections
-                .actionFavouritesFragmentToMapFragment("fav")
-            Navigation.findNavController(requireView())
-                .navigate(action)
+            if(checkConnectivity(requireContext())) {
+                val action = FavouritesFragmentDirections
+                    .actionFavouritesFragmentToMapFragment(getString(R.string.fav))
+                Navigation.findNavController(requireView())
+                    .navigate(action)
+            }else{
+                showSnackbar(requireActivity(),getString(R.string.noInternetMessage))
+            }
         }
 
         lifecycleScope.launch {

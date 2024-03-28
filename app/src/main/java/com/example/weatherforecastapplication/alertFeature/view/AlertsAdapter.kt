@@ -8,11 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecastapplication.R
-import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
+import com.example.weatherforecastapplication.data.models.AlertRoom
 import com.example.weatherforecastapplication.databinding.AlertLayoutBinding
-import com.example.weatherforecastapplication.databinding.FavLayoutBinding
-import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
-import com.example.weatherforecastapplication.model.CurrentWeather
 
 class AlertsAdapter(
     val context: Context,

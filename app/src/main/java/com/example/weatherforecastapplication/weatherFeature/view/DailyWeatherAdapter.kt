@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.DailyWeatherLayoutBinding
-import com.example.weatherforecastapplication.model.CurrentWeather
+import com.example.weatherforecastapplication.data.models.CurrentWeather
 
 class DailyWeatherAdapter(
     private val context: Context,

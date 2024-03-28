@@ -14,18 +14,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.weatherforecastapplication.R
+import com.example.weatherforecastapplication.data.models.Language
 import com.example.weatherforecastapplication.databinding.FragmentSettingsBinding
 import com.example.weatherforecastapplication.settings.viewModel.SettingsViewModel
-import com.example.weatherforecastapplication.settings.viewModel.Units
-import com.example.weatherforecastapplication.settings.viewModel.WindSpeed
-import com.example.weatherforecastapplication.shared.LocaleUtil
-import com.example.weatherforecastapplication.shared.Storage
-import com.example.weatherforecastapplication.shared.getCurrentSpinnerLocationValue
-import com.example.weatherforecastapplication.shared.getLangSpinnerValue
-import com.example.weatherforecastapplication.shared.getTempSpinnerValue
-import com.example.weatherforecastapplication.shared.getWindUnitSpinnerValue
+import com.example.weatherforecastapplication.data.models.Units
+import com.example.weatherforecastapplication.data.models.WindSpeed
+import com.example.weatherforecastapplication.utils.LocaleUtil
+import com.example.weatherforecastapplication.utils.Storage
+import com.example.weatherforecastapplication.utils.checkConnectivity
+import com.example.weatherforecastapplication.utils.getCurrentSpinnerLocationValue
+import com.example.weatherforecastapplication.utils.getLangSpinnerValue
+import com.example.weatherforecastapplication.utils.getTempSpinnerValue
+import com.example.weatherforecastapplication.utils.getWindUnitSpinnerValue
+import com.example.weatherforecastapplication.utils.showSnackbar
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 private const val TAG = "SettingsFragment"
 
@@ -172,66 +174,69 @@ class SettingsFragment : Fragment() {
     }
 
     private fun onTempItemSelected(selectedItem: String) {
-        when (selectedItem) {
-            getString(R.string.celsius) -> {
-                if (Storage.getCurrentUnit(requireContext()) != "metric") {
-                    lifecycleScope.launch {
-                        settingsViewModel.changeUnit(Units.METRIC)
+        if(checkConnectivity(requireContext())) {
+            when (selectedItem) {
+                getString(R.string.celsius) -> {
+                    if (Storage.getCurrentUnit(requireContext()) != "metric") {
+                            settingsViewModel.changeUnit(Units.METRIC)
+                        Storage.setUnit(requireContext(), "metric")
                     }
-                    Storage.setUnit(requireContext(), "metric")
-                }
-            }
-
-            getString(R.string.fahrenheit) -> {
-                if (Storage.getCurrentUnit(requireContext()) != "standard") {
-                    lifecycleScope.launch {
-                        settingsViewModel.changeUnit(Units.STANDARD)
-                    }
-                    Storage.setUnit(
-                        requireContext(),
-                        "standard"
-                    )
                 }
 
-            }
+                getString(R.string.fahrenheit) -> {
+                    if (Storage.getCurrentUnit(requireContext()) != "standard") {
+                            settingsViewModel.changeUnit(Units.STANDARD)
 
-            getString(R.string.kelvin) -> {
-                if (Storage.getCurrentUnit(requireContext()) != "imperial") {
-                    lifecycleScope.launch {
-                        settingsViewModel.changeUnit(Units.IMPERIAL)
+                        Storage.setUnit(
+                            requireContext(),
+                            "standard"
+                        )
                     }
-                    Storage.setUnit(requireContext(), "imperial")
+
                 }
+
+                getString(R.string.kelvin) -> {
+                    if (Storage.getCurrentUnit(requireContext()) != "imperial") {
+                            settingsViewModel.changeUnit(Units.IMPERIAL)
+                        Storage.setUnit(requireContext(), "imperial")
+                    }
+                }
+
+
             }
-
-
+        }else{
+            showSnackbar(requireActivity(),getString(R.string.noInternetMessage))
         }
     }
-
     private fun onLocationItemSelected(selectedItem: String) {
-        when (selectedItem) {
-            getString(R.string.map) -> {
-                if (Storage.getCurrentLocation(requireContext()) != "map") {
-                    Log.i("TAG", "Map: ")
-                    Storage.setLocation(requireContext(), "map")
-                    val action =
-                        SettingsFragmentDirections.actionSettingsFragmentToMapFragment(
-                            "map"
-                        )
-                    Navigation.findNavController(requireView()).navigate(action)
+        if(checkConnectivity(requireContext())) {
+            when (selectedItem) {
+                getString(R.string.map) -> {
+                    if (Storage.getCurrentLocation(requireContext()) != "map") {
+                        Storage.setLocation(requireContext(), "map")
+                        val action =
+                            SettingsFragmentDirections.actionSettingsFragmentToMapFragment(
+                                "map"
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+
+                    }
+                }
+
+                getString(R.string.gps) -> {
+                    if (Storage.getCurrentLocation(requireContext()) != "gps") {
+                        Storage.setLocation(requireContext(), "gps")
+                        val action =
+                            SettingsFragmentDirections.actionSettingsFragmentToHomeFragment(
+                                0F,
+                                0F
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    }
                 }
             }
-            getString(R.string.gps) -> {
-                if (Storage.getCurrentLocation(requireContext()) != "gps") {
-                    Storage.setLocation(requireContext(), "gps")
-                    val action =
-                        SettingsFragmentDirections.actionSettingsFragmentToHomeFragment(
-                            0F,
-                            0F
-                        )
-                    Navigation.findNavController(requireView()).navigate(action)
-                }
-            }
+        }else{
+            showSnackbar(requireActivity(),getString(R.string.noInternetMessage))
         }
     }
 
@@ -240,28 +245,31 @@ class SettingsFragment : Fragment() {
             when (selectedItem) {
                 getString(R.string.english_language) -> {
                     lang = "en"
-                    if (Storage.getPreferredLocale(requireContext()) != lang)
+                    if (Storage.getPreferredLocale(requireContext()) != lang) {
+                        settingsViewModel.changeLanguage(Language.ENGLISH)
                         updateAppLocale(lang)
+                    }
                 }
 
                 getString(R.string.system_mode) -> {
                     lang = "sys_def"
-                    if (Storage.getPreferredLocale(requireContext()) != lang)
+                    if (Storage.getPreferredLocale(requireContext()) != lang) {
+                        settingsViewModel.changeLanguage(Language.SYSTEM)
                         updateAppLocale(lang)
+                    }
                 }
 
                 getString(R.string.arabic_language) -> {
                     lang = "ar"
-                    if (Storage.getPreferredLocale(requireContext()) != lang)
+                    if (Storage.getPreferredLocale(requireContext()) != lang) {
+                        settingsViewModel.changeLanguage(Language.ARABIC)
                         updateAppLocale(lang)
+                    }
                 }
             }
 
     }
     private fun spinnerData(spinner: Spinner, adapter: ArrayAdapter<String>) {
-
-        // adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, items)
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
         spinner.adapter = adapter
@@ -300,23 +308,15 @@ class SettingsFragment : Fragment() {
         when (selectedItem) {
             getString(R.string.meter_per_second) -> {
                 if (Storage.getCurrentWindUnit(requireContext()) != "m/s") {
-                    lifecycleScope.launch {
                         settingsViewModel.changeWindSpeed(WindSpeed.METER_PER_SEC)
-                        Log.i(TAG, "onItemSelected: Wind")
                         Storage.setWindUnit(requireContext(), "m/s")
-                    }
-
                 }
 
             }
-
             getString(R.string.mile_per_hour) -> {
                 if (Storage.getCurrentWindUnit(requireContext()) != "m/h") {
-                    lifecycleScope.launch {
                         settingsViewModel.changeWindSpeed(WindSpeed.MILE_PER_HOUR)
-                        Log.i(TAG, "onItemSelected: Wind")
                         Storage.setWindUnit(requireContext(), "m/h")
-                    }
                 }
             }
         }

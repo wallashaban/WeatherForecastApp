@@ -1,25 +1,17 @@
 package com.example.weatherforecastapplication.weatherFeature.viewModel
 
-import android.content.Context
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.weatherforecastapplication.model.CurrentWeather
-import com.example.weatherforecastapplication.model.FiveDaysForecast
-import com.example.weatherforecastapplication.network.WeatherParam
-import com.example.weatherforecastapplication.shared.ApiState
-import com.example.weatherforecastapplication.weatherRepository.WeatherRepository
+import com.example.weatherforecastapplication.data.models.FiveDaysForecast
+import com.example.weatherforecastapplication.data.models.WeatherParam
+import com.example.weatherforecastapplication.utils.ApiState
+import com.example.weatherforecastapplication.data.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class WeatherViewModel(private val _repo: WeatherRepository) : ViewModel() {
@@ -38,9 +30,36 @@ class WeatherViewModel(private val _repo: WeatherRepository) : ViewModel() {
            _repo.getFiveDaysForecast(weatherParam).catch {
                _fiveDaysForecast.emit(ApiState.Failure(it))
            }.collect {
+               Log.i("TAG", "getFiveDaysForecast: api")
                _fiveDaysForecast.emit(ApiState.Success(it))
            }
 
+        }
+    }
+
+    fun getCurrentWeatherUsingRoom(){
+       viewModelScope.launch {
+           _repo.getCurrentWeatherFromRoom()
+               .catch {
+                   _fiveDaysForecast.emit(ApiState.Failure(it))
+                   Log.i("TAG", "getCurrentWeatherUsingRoom: ${it.message}")
+               }
+               .collect{
+                   Log.i("TAG", "getCurrentWeatherUsingRoom: collect")
+               _fiveDaysForecast.emit(ApiState.Success(it))
+           }
+       }
+    }
+
+    fun deleteCurrentWeather(date:String){
+        viewModelScope.launch {
+            _repo.deleteCurrentWeather(date)
+        }
+    }
+
+    fun addCurrentWeather(weather: FiveDaysForecast){
+        viewModelScope.launch {
+            _repo.addCurrentWeather(weather)
         }
     }
 

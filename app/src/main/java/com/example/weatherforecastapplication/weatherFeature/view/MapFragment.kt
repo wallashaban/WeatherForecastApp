@@ -1,33 +1,20 @@
 package com.example.weatherforecastapplication.weatherFeature.view
 import android.annotation.SuppressLint
-import android.content.Context
-import android.location.Geocoder
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentMapBinding
-import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
-import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSourceImpl
+import com.example.weatherforecastapplication.data.models.Favourites
+import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
 import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
-import com.example.weatherforecastapplication.network.RemoteDataSourceImpl
-import com.example.weatherforecastapplication.network.WeatherParam
-import com.example.weatherforecastapplication.shared.API_KEY
-import com.example.weatherforecastapplication.shared.ApiState
-import com.example.weatherforecastapplication.shared.Storage
-import com.example.weatherforecastapplication.shared.getAddressFromCoordinates
-import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModel
-import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
+import com.example.weatherforecastapplication.utils.getAddressFromCoordinates
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -42,13 +29,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
-import java.lang.Exception
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import kotlinx.coroutines.launch
-import java.io.IOException
-import java.util.Locale
-import kotlin.math.log
 
 
 private const val TAG = "MapFragment"

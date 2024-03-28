@@ -1,5 +1,6 @@
 package com.example.weatherforecastapplication.alertFeature.view
 
+import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
@@ -10,12 +11,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.TextView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.alertFeature.model.ForegroundService
 
 
 class Window(
-    private val context: Context
+    private val context: Context,
+    private val description: String
 ) {
     private val mView: View
     private var mParams: WindowManager.LayoutParams? = null
@@ -36,6 +39,8 @@ class Window(
 
         mView = layoutInflater.inflate(R.layout.popup_window_layout, null)
         mView.findViewById<View>(R.id.dismiss).setOnClickListener { dismiss() }
+      val descriptionTv =  mView.findViewById<TextView>(R.id.dialog_desc)
+        descriptionTv.text = description
         mParams!!.gravity = Gravity.TOP
         mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }

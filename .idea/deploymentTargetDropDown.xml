@@ -2,7 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="FavouritesDaoTest">
+        <State />
+      </entry>
+      <entry key="addAndGetFavouriteWeather()">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="deleteWeatherFromFavourites()">
+        <State />
+      </entry>
+      <entry key="getFavouriteWeather()">
         <State />
       </entry>
     </value>

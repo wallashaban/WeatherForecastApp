@@ -1,15 +1,10 @@
 package com.example.weatherforecastapplication.alertFeature.view
 
-import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -17,36 +12,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.work.Constraints
-import androidx.work.Data
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.weatherforecastapplication.R
-import com.example.weatherforecastapplication.alertFeature.model.AlarmItem
-import com.example.weatherforecastapplication.alertFeature.model.AlarmScheduler
-import com.example.weatherforecastapplication.alertFeature.model.AlarmSchedulerImpl
-import com.example.weatherforecastapplication.alertFeature.model.AlertRoom
-import com.example.weatherforecastapplication.alertFeature.model.MyWorkManager
 import com.example.weatherforecastapplication.alertFeature.viewModel.AlertViewModel
-import com.example.weatherforecastapplication.databinding.DialogLayoutBinding
 import com.example.weatherforecastapplication.databinding.FragmentAlertBinding
-import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSourceImpl
-import com.example.weatherforecastapplication.network.RemoteDataSourceImpl
-import com.example.weatherforecastapplication.shared.ApiState
-import com.example.weatherforecastapplication.shared.checkOverlayPermission
-import com.example.weatherforecastapplication.shared.convertDateToMillis
-import com.example.weatherforecastapplication.shared.convertTimeToMillis
-import com.example.weatherforecastapplication.shared.getAddressFromCoordinates
-import com.example.weatherforecastapplication.shared.popMapFragmentFromTheBackStack
-import com.example.weatherforecastapplication.shared.showDatePickerDialog
-import com.example.weatherforecastapplication.shared.showTimePickerDialog
-import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
+import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
+import com.example.weatherforecastapplication.data.remote.RemoteDataSourceImpl
+import com.example.weatherforecastapplication.utils.ApiState
+import com.example.weatherforecastapplication.utils.checkConnectivity
+import com.example.weatherforecastapplication.utils.checkOverlayPermission
+import com.example.weatherforecastapplication.utils.popMapFragmentFromTheBackStack
+import com.example.weatherforecastapplication.utils.showSnackbar
+import com.example.weatherforecastapplication.data.repo.WeatherRepositoryImpl
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.Calendar
-import java.util.UUID
-import java.util.concurrent.TimeUnit
 
 private const val TAG = "AlertFragment"
 class AlertFragment : Fragment() {
@@ -99,16 +78,20 @@ class AlertFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         popMapFragmentFromTheBackStack(requireView())
         binding.alertAdd.setOnClickListener {
-            val action= AlertFragmentDirections
-                .actionAlertFragmentToMapFragment("alert")
-            Navigation.findNavController(requireView())
-                .navigate(action)
+            if(checkConnectivity(requireContext())) {
+                val action = AlertFragmentDirections
+                    .actionAlertFragmentToMapFragment("alert")
+                Navigation.findNavController(requireView())
+                    .navigate(action)
+            }else{
+                showSnackbar(requireActivity(),getString(R.string.noInternetMessage))
+            }
         }
 
 
         adapter = AlertsAdapter(requireContext())
-        {
-            alert -> alertViewModel.deleteAlert(alert)
+        { alert ->
+            alertViewModel.deleteAlert(alert)
             WorkManager.getInstance(requireContext()).cancelWorkById(alert.id)
         }
 
@@ -118,16 +101,16 @@ class AlertFragment : Fragment() {
         binding.alertRv.adapter = adapter
 
         lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                alertViewModel.alerts.collectLatest {result ->
-                    when(result)
-                    {
-                        is ApiState.Loading->{
+                alertViewModel.alerts.collectLatest { result ->
+                    when (result) {
+                        is ApiState.Loading -> {
                             binding.alertRv.visibility = View.GONE
                             binding.progressBar2.visibility = View.VISIBLE
                         }
-                        is ApiState.Failure ->{
+
+                        is ApiState.Failure -> {
                             binding.alertRv.visibility = View.GONE
                             Toast.makeText(
                                 requireContext(),
@@ -135,16 +118,28 @@ class AlertFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                        is ApiState.Success ->{
+
+                        is ApiState.Success -> {
                             binding.alertRv.visibility = View.VISIBLE
                             binding.progressBar2.visibility = View.GONE
-                            adapter.submitList(result.data)
+                            val workManager = WorkManager.getInstance(requireContext())
+
+//                            result.data.forEach {
+//                                val workInfoLiveData =
+//                                    workManager.getWorkInfoByIdLiveData(it.id)
+//                                workInfoLiveData.observe(viewLifecycleOwner) { workInfo ->
+//                                    if (workInfo == null || workInfo.state.isFinished) {
+//                                        alertViewModel.deleteAlert(it)
+//                                    }
+//                                }
+                                adapter.submitList(result.data)
+                           // }
                         }
                     }
                 }
             }
+
         }
 
     }
-
 }

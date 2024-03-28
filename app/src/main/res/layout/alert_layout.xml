@@ -6,7 +6,7 @@
     <data>
         <variable
             name="alert"
-            type="com.example.weatherforecastapplication.alertFeature.model.AlertRoom" />
+            type="com.example.weatherforecastapplication.data.models.AlertRoom" />
     </data>
 
 

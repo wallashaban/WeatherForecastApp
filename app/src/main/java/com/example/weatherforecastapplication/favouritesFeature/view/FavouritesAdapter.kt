@@ -9,8 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FavLayoutBinding
-import com.example.weatherforecastapplication.favouritesFeature.model.Favourites
-import com.example.weatherforecastapplication.model.CurrentWeather
+import com.example.weatherforecastapplication.data.models.Favourites
 
 class FavouritesAdapter(
     val context: Context,

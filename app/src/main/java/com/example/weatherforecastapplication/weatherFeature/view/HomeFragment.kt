@@ -13,7 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -22,28 +21,29 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentHomeBinding
-import com.example.weatherforecastapplication.favouritesFeature.model.LocalDataSourceImpl
-import com.example.weatherforecastapplication.model.CurrentWeather
-import com.example.weatherforecastapplication.model.FiveDaysForecast
-import com.example.weatherforecastapplication.network.RemoteDataSourceImpl
-import com.example.weatherforecastapplication.network.WeatherParam
+import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
+import com.example.weatherforecastapplication.data.models.CurrentWeather
+import com.example.weatherforecastapplication.data.models.FiveDaysForecast
+import com.example.weatherforecastapplication.data.remote.RemoteDataSourceImpl
+import com.example.weatherforecastapplication.data.models.WeatherParam
 import com.example.weatherforecastapplication.settings.viewModel.SettingsViewModel
-import com.example.weatherforecastapplication.settings.viewModel.WindSpeed
-import com.example.weatherforecastapplication.shared.API_KEY
-import com.example.weatherforecastapplication.shared.ApiState
-import com.example.weatherforecastapplication.shared.REQUEST_LOCATION_CODE
-import com.example.weatherforecastapplication.shared.Storage
-import com.example.weatherforecastapplication.shared.WIND_UNIT
-import com.example.weatherforecastapplication.shared.addCelsiusSign
-import com.example.weatherforecastapplication.shared.convertToMeterPerSecond
-import com.example.weatherforecastapplication.shared.convertToMilePerHour
-import com.example.weatherforecastapplication.shared.enableLocationServices
-import com.example.weatherforecastapplication.shared.getDateFromDateTime
-import com.example.weatherforecastapplication.shared.getDayOfTheWeek
-import com.example.weatherforecastapplication.shared.isLocationEnable
-import com.example.weatherforecastapplication.shared.requestPermission
+import com.example.weatherforecastapplication.data.models.WindSpeed
+import com.example.weatherforecastapplication.utils.API_KEY
+import com.example.weatherforecastapplication.utils.ApiState
+import com.example.weatherforecastapplication.utils.Storage
+import com.example.weatherforecastapplication.utils.WIND_UNIT
+import com.example.weatherforecastapplication.utils.addCelsiusSign
+import com.example.weatherforecastapplication.utils.checkConnectivity
+import com.example.weatherforecastapplication.utils.convertToMeterPerSecond
+import com.example.weatherforecastapplication.utils.convertToMilePerHour
+import com.example.weatherforecastapplication.utils.enableLocationServices
+import com.example.weatherforecastapplication.utils.getDateFromDateTime
+import com.example.weatherforecastapplication.utils.getDayOfTheWeek
+import com.example.weatherforecastapplication.utils.isLocationEnable
+import com.example.weatherforecastapplication.utils.requestPermission
+import com.example.weatherforecastapplication.utils.showSnackbar
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModel
-import com.example.weatherforecastapplication.weatherRepository.WeatherRepositoryImpl
+import com.example.weatherforecastapplication.data.repo.WeatherRepositoryImpl
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -61,11 +61,13 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var manager: LinearLayoutManager
     private lateinit var hourlyWeatherAdapter: HourlyWeatherAdapter
-    private lateinit var dailyanager: LinearLayoutManager
+    private lateinit var dailyManager: LinearLayoutManager
     private lateinit var dailyWeatherAdapter: DailyWeatherAdapter
 
     /////
     private lateinit var currentWeather: CurrentWeather
+    private var isChanged = false
+    private var isTempChanged = false
 
     // settings 
     private lateinit var settingsViewModel: SettingsViewModel
@@ -77,10 +79,12 @@ class HomeFragment : Fragment() {
     private var lat: Float = 0F
     private var long: Float = 0F
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG, "onCreate: ")
-        settingsViewModel = ViewModelProvider(requireActivity())[SettingsViewModel::class.java]
+        settingsViewModel = ViewModelProvider(
+            requireActivity()
+        )[SettingsViewModel::class.java]
         weatherViewModelFactory = WeatherViewModel.Factory(
             WeatherRepositoryImpl.getInstance(
                 RemoteDataSourceImpl,
@@ -94,7 +98,6 @@ class HomeFragment : Fragment() {
         lat = arguments?.getFloat("latitude") ?: 0F
         long = arguments?.getFloat("longitude") ?: 0F
 
-        //review
         if (lat != 0F && long != 0F) {
             val weatherParam = WeatherParam(
                 lat.toDouble(),
@@ -104,8 +107,6 @@ class HomeFragment : Fragment() {
                 Storage.getPreferredLocale(requireActivity())
             )
             weatherViewModel.getFiveDaysForecast(weatherParam)
-            // popMapFragmentFromTheBackStack(requireView())
-            Log.i(TAG, "onCreate: inside if ")
         }
     }
 
@@ -113,8 +114,6 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.i(TAG, "onCreateView: $lat $long")
-
         WIND_UNIT = Storage.getCurrentWindUnit(requireContext())
         binding = FragmentHomeBinding.inflate(layoutInflater, container, false)
         return binding.root
@@ -122,26 +121,93 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i(TAG, "onViewCreated: ")
         manager = LinearLayoutManager(requireContext())
         manager.orientation = LinearLayoutManager.HORIZONTAL
         hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
         binding.hourlyWeatherRv.layoutManager = manager
         binding.hourlyWeatherRv.adapter = hourlyWeatherAdapter
 
-        dailyanager = LinearLayoutManager(requireContext())
-        dailyanager.orientation = LinearLayoutManager.VERTICAL
+        dailyManager = LinearLayoutManager(requireContext())
+        dailyManager.orientation = LinearLayoutManager.VERTICAL
         dailyWeatherAdapter = DailyWeatherAdapter(requireContext())
-        binding.dailyWeatherRv.layoutManager = dailyanager
+        binding.dailyWeatherRv.layoutManager = dailyManager
         binding.dailyWeatherRv.adapter = dailyWeatherAdapter
 
+        observeWindSpeed()
+        observeTemperature()
+        observeLanguage()
+
+        val result =
+            registerForActivityResult(ActivityResultContracts.RequestPermission())
+            { isGranted ->
+                if (isGranted) {
+                    if (isLocationEnable(requireContext())) {
+                        if (lat == 0F && long == 0F && weatherViewModel.wind == null)
+                            getFreshLocation()
+                    } else {
+                        enableLocationServices(requireActivity())
+                    }
+                } else {
+                    requestPermission(requireActivity())
+                }
+            }
+        result.launch(ACCESS_FINE_LOCATION)
+        observeWeather()
+    }
+
+    private fun observeWeather() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                Log.i(TAG, "onViewCreated: Scope")
+                weatherViewModel.fiveDaysForecast.collect { result ->
+                    when (result) {
+                        is ApiState.Loading -> {
+                            binding.homeProgressBar.visibility = View.VISIBLE
+                            binding.homeData.visibility = View.GONE
+                        }
+
+                        is ApiState.Failure -> {
+                            binding.homeProgressBar.visibility = View.GONE
+                            binding.homeData.visibility = View.GONE
+                            Toast.makeText(
+                                requireContext(),
+                                result.error.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        is ApiState.Success -> {
+                            if (isChanged && !isTempChanged) {
+                                result.data.currentDate = LocalDate.now().toString()
+                                weatherViewModel.addCurrentWeather(result.data)
+                                weatherViewModel.deleteCurrentWeather(
+                                    Storage.getCurrentDate(
+                                        requireContext()
+                                    )
+                                )
+                                Storage.setCurrent(requireContext(), LocalDate.now().toString())
+                                isChanged = !isChanged
+                            }
+                            binding.homeProgressBar.visibility = View.GONE
+                            binding.homeData.visibility = View.VISIBLE
+                            currentWeather = result.data.list[0]
+                            setCurrentWeather(result)
+                            // hourly weather
+                            setHourlyWeather(result)
+                            // daily weather
+                            setDailyWeather(result)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeWindSpeed() {
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 settingsViewModel.windSpeedSharedFlow.collect { wind ->
                     if (weatherViewModel.wind != WIND_UNIT) {
                         WIND_UNIT = if (wind.name == WindSpeed.MILE_PER_HOUR.toString()) {
-
                             currentWeather.wind.speed =
                                 convertToMilePerHour(currentWeather.wind.speed)
                             "m/h"
@@ -155,79 +221,28 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun observeTemperature() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 settingsViewModel.unitsSharedFlow.collect {
-                    Log.i(TAG, "onViewCreated: Scope inner ${it.name.lowercase()}")
                     if (weatherViewModel.unit != it.name) {
-                        val weatherParam = WeatherParam(
-                            lat.toDouble(), long.toDouble(), API_KEY,
-                            it.name.lowercase(),
-                            Storage.getPreferredLocale(requireActivity())
-                        )
-                        weatherViewModel.getFiveDaysForecast(weatherParam)
+                        getFreshLocation()
                         weatherViewModel.unit = it.name
+                        isTempChanged = true
                     }
                 }
             }
         }
-       /* registerForActivityResult(ActivityResultContracts.RequestPermission(),
-            object : ActivityResultCallback<Boolean>{
-                override fun onActivityResult(result: Boolean) {
-                    Log.i(TAG, "onActivityResult: ")
-                }
-            })*/
+    }
 
-        val result =
-            registerForActivityResult(ActivityResultContracts.RequestPermission())
-            {isGranted ->
-            if (isGranted){
-                Log.i(TAG, "onViewCreated: Granted")
-                if (isLocationEnable(requireContext())) {
-                    Log.i(TAG, "onStart: isLocation  enabled")
-                    if (lat == 0F && long == 0F)
-                        getFreshLocation()
-                } else {
-                    enableLocationServices(requireActivity())
-                    Log.i(TAG, "onStart: enable location")
-                }
-            }else{
-                Log.i(TAG, "onViewCreated: Not Granted")
-                requestPermission(requireActivity())
-            }
-        }
-        result.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun observeLanguage() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                weatherViewModel.fiveDaysForecast.collect { result ->
-                    when (result) {
-                        is ApiState.Loading -> {
-                            binding.homeProgressBar.visibility=View.VISIBLE
-                            binding.homeData.visibility = View.GONE
-                        }
-
-                        is ApiState.Failure -> {
-                            binding.homeProgressBar.visibility=View.GONE
-                            binding.homeData.visibility = View.GONE
-                            Toast.makeText(
-                                requireContext(),
-                                result.error.message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        is ApiState.Success -> {
-                            binding.homeProgressBar.visibility=View.GONE
-                            binding.homeData.visibility = View.VISIBLE
-                            currentWeather = result.data.list[0]
-                            setCurrentWeather(result)
-                            // weatherViewModel.saveCurrentWeatherToRoom(currentWeather)
-                            // hourly weather
-                            setHourlyWeather(result)
-                            // daily weather
-                            setDailyWeather(result)
-                        }
-                    }
+                settingsViewModel.langSharedFlow.collect {
+                    getFreshLocation()
+                    isTempChanged = true
                 }
             }
         }
@@ -235,7 +250,6 @@ class HomeFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.i(TAG, "onStart: ")
         val search = requireActivity().findViewById<View>(R.id.search)
         search.visibility = View.VISIBLE
 //        if (checkPermissions()) {
@@ -252,29 +266,29 @@ class HomeFragment : Fragment() {
 //            Log.i(TAG, "onStart: request location")
 //           // requestPermission(requireActivity())
 //        }
-        Log.i(TAG, "onStart: End")
 
-    }
+    } // Review
+
     private fun setDailyWeather(result: ApiState.Success<FiveDaysForecast>) {
         var day: String? = null
         val filteredDailyWeather = mutableListOf<CurrentWeather>()
         for (item in result.data.list) {
-            if (getDayOfTheWeek(item.dateText!!) != day) {
+            if (getDayOfTheWeek(item.dateText) != day) {
                 filteredDailyWeather.add(item)
             }
             day = getDayOfTheWeek(item.dateText)
         }
         filteredDailyWeather.removeAt(0)
         dailyWeatherAdapter.submitList(filteredDailyWeather)
-    }
+    } // Done
 
     private fun setHourlyWeather(result: ApiState.Success<FiveDaysForecast>) {
         val today = LocalDate.now()
         val filteredWeather = result.data.list.filter { weather ->
-            getDateFromDateTime(weather.dateText!!) == today.toString()
+            getDateFromDateTime(weather.dateText) == today.toString()
         }
         hourlyWeatherAdapter.submitList(filteredWeather)
-    }
+    } // Done
 
     private fun setCurrentWeather(result: ApiState.Success<FiveDaysForecast>) {
         if (WIND_UNIT == "m/h" && weatherViewModel.wind == null) {
@@ -282,62 +296,26 @@ class HomeFragment : Fragment() {
                 convertToMilePerHour(currentWeather.wind.speed)
         }
         binding.windUnit = WIND_UNIT
-        binding.tempUnit = addCelsiusSign(currentWeather.main.temp,requireContext())
+        binding.tempUnit = addCelsiusSign(currentWeather.main.temp, requireContext())
+        result.data.list[0].wind.speed = currentWeather.wind.speed
         binding.weather = result.data
     }
 
-
-
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.i(TAG, "onRequestPermissionsResult: ")
-        if (requestCode == REQUEST_LOCATION_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getFreshLocation()
-            }
-        }
-    }
-
-
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.i(TAG, "onDestroy: ")
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        Log.i(TAG, "onDestroyView: ")
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        Log.i(TAG, "onDetach: ")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.i(TAG, "onResume: ")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.i(TAG, "onPause: ")
-    }
-
-
     @SuppressLint("MissingPermission")
     private fun getFreshLocation() {
-        val locationCallBack = object : LocationCallback() {
+        fusedClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedClient.requestLocationUpdates(
+            LocationRequest.Builder(0).apply {
+                setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
+            }.build(),
+            getLocationCallBack(),
+            Looper.myLooper()
+        )
+    }
+    private fun getLocationCallBack(): LocationCallback {
+        return object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 if (isAdded) {
-                    Log.i(TAG, "onLocationResult: ")
                     val locationRequest = locationResult.lastLocation
                     latitude = locationRequest?.latitude
                     longitude = locationRequest?.longitude
@@ -346,35 +324,40 @@ class HomeFragment : Fragment() {
                         Storage.getCurrentUnit(requireActivity()),
                         Storage.getPreferredLocale(requireActivity())
                     )
-                    weatherViewModel.getFiveDaysForecast(weatherParam)
+                    getWeather(weatherParam)
                     fusedClient.removeLocationUpdates(this)
                 }
             }
         }
-        fusedClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        fusedClient.requestLocationUpdates(
-            LocationRequest.Builder(0).apply {
-                setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
-            }.build(),
-            locationCallBack,
-            Looper.myLooper()
-        )
     }
-
+    private fun getWeather(weatherParam: WeatherParam) {
+        if (Storage.getCurrentDate(requireContext()) == LocalDate.now()
+                .toString() && !isTempChanged
+        ) {
+            Log.i(TAG, "onLocationResult: getCurrentLocation")
+            weatherViewModel.getCurrentWeatherUsingRoom()
+        } else {
+            if (checkConnectivity(requireContext())) {
+                weatherViewModel.getFiveDaysForecast(weatherParam)
+                isChanged = true
+                Log.i(TAG, "onLocationResult: Changed")
+            } else {
+                showSnackbar(requireActivity(), getString(R.string.noInternetMessage))
+            }
+        }
+    }
     private fun checkPermissions(): Boolean {
         var result = false
         if ((requireActivity().checkSelfPermission(
-               // requireContext(),
                 ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED)
             ||
             (requireActivity().checkSelfPermission(
-                //requireContext(),
                 ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED)
         ) {
             result = true
         }
         return result
-    }
+    } // Review
 }

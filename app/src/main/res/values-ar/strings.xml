@@ -41,7 +41,7 @@
     <string name="cloud">السحاب</string>
     <string name="visibilty">الرؤية</string>
     <string name="humadity">الرطوبة</string>
-    <string name="meterPerSecond">ث/م</string>
-    <string name="milePerHour">س/م</string>
+    <string name="mPerS">ث/م</string>
+    <string name="mPerH">س/م</string>
 
 </resources>

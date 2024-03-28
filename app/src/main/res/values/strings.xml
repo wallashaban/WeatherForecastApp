@@ -21,7 +21,13 @@
     <string name="light_mode">Light</string>
     <string name="dark_mode">Dark</string>
     <string name="system_mode">System</string>
-
+    <string name="noInternetMessage">Sorry, but you are not connected to the internet</string>
+    <string name="fav">fav</string>
+    <string name="en">en</string>
+    <string name="ar">ar</string>
+    <string name="system">sys_def</string>
+    <string name="mPerH">m/h</string>
+    <string name="mPerS">m/s</string>
     <!-- English, Arabic -->
     <string name="english_language">English</string>
     <string name="arabic_language">Arabic</string>
