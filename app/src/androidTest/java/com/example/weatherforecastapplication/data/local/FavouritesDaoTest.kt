@@ -1,30 +1,19 @@
-package com.example.weatherforecastapplication
+package com.example.weatherforecastapplication.data.local
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.example.weatherforecastapplication.data.models.Favourites
-import com.example.weatherforecastapplication.data.local.FavouritesDao
-import com.example.weatherforecastapplication.data.local.WeatherDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.nullValue
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -35,17 +24,13 @@ class FavouritesDaoTest {
     private lateinit var database: WeatherDatabase
     private lateinit var favouritesDao: FavouritesDao
 
-    //@get:Rule
-    //val rule = InstantTaskExecutorRule()
-
-
     @Before
     fun setUp()
     {
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             WeatherDatabase::class.java,
-            )//.allowMainThreadQueries()
+            )
             .build()
 
         favouritesDao = database.getWeatherFavouritesDao()

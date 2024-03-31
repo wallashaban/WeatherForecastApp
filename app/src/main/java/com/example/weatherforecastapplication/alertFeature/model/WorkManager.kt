@@ -9,35 +9,53 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.weatherforecastapplication.R
+import com.example.weatherforecastapplication.data.local.LocalDataSource
+import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
+import com.example.weatherforecastapplication.data.models.Daos
 import com.example.weatherforecastapplication.data.remote.RemoteDataSourceImpl
 import com.example.weatherforecastapplication.data.models.WeatherParam
+import com.example.weatherforecastapplication.data.repo.WeatherRepository
+import com.example.weatherforecastapplication.data.repo.WeatherRepositoryImpl
 import com.example.weatherforecastapplication.utils.API_KEY
 import com.example.weatherforecastapplication.utils.Storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.internal.synchronizedImpl
+import kotlinx.coroutines.withContext
 
 
-class MyWorkManager (val context: Context, params: WorkerParameters)
-    : CoroutineWorker(context,params) {
-        private  var isNotification = true
+class MyWorkManager(val context: Context, params: WorkerParameters) :
+    CoroutineWorker(context, params) {
+    private var isNotification = true
     private lateinit var date: String
     private lateinit var time: String
     override suspend fun doWork(): Result {
-        val inputData = inputData
-        val lat = inputData.getDouble("lat", 0.0)
-        val lon = inputData.getDouble("lon", 0.0)
-         isNotification = inputData.getBoolean("notification",true)
+        Log.i("TAG", "doWork: ")
+        withContext(Dispatchers.IO) {
+            val inputData = inputData
+            val lat = inputData.getDouble("lat", 0.0)
+            val lon = inputData.getDouble("lon", 0.0)
+            val datetime = inputData.getString("datetime")
+            isNotification = inputData.getBoolean("notification", true)
 
-        fetchDataAndShowNotification(context,lat,lon)
+            fetchDataAndShowNotification(context, lat, lon,datetime!!)
+        }
         return Result.success()
     }
 
-    private suspend fun fetchDataAndShowNotification(context: Context, lat: Double, long: Double) {
-        val alertNotificationService =
-            AlertNotificationService(context)
+    private suspend fun fetchDataAndShowNotification(
+        context: Context,
+        lat: Double,
+        long: Double,
+        datetime:String
+    ) {
 
-        val  remoteDataSource = RemoteDataSourceImpl
+
+        val repo = WeatherRepositoryImpl.getInstance(
+            RemoteDataSourceImpl,
+            LocalDataSourceImpl.getInstance(Daos(context))
+        )
 
         val weatherParam = WeatherParam(
             lat,
@@ -47,51 +65,54 @@ class MyWorkManager (val context: Context, params: WorkerParameters)
             Storage.getPreferredLocale(context),
         )
 
-        remoteDataSource.getAlertForWeather(weatherParam)
-            .flowOn(
-            Dispatchers.IO
-        ).collectLatest {
+        repo.getAlertForWeather(weatherParam)
+            .collectLatest {
 
-            if(it.alertResponse==null)
-            {
-                if(isNotification)
-                {
-                    alertNotificationService.showAlertNotification("The weather is fine " +
-                            "no risks to face :)",
-                        BitmapFactory.decodeResource(context.resources, R.drawable.sunny))
-                }else
-                {
-                    startService(context,"The weather is fine " +
-                            "no risks to face :)")
+                if (it.alertResponse == null) {
+                    if (isNotification) {
+                        showNotification(context.getString(R.string.weatherDescription))
+                    } else {
+                        showDialog(context.getString(R.string.weatherDescription))
+                    }
+                } else {
+                    if (isNotification) {
+                        showNotification(
+                            it.alertResponse.alerts[0].description,
+                        )
+                    } else {
+                        showDialog(it.alertResponse.alerts[0].description)
+                    }
                 }
-            }else {
-                if(isNotification) {
-                    Log.i("TAG", "fetchDataAndShowNotification: ${it.alertResponse}")
-                    alertNotificationService.showAlertNotification(
-                        it.alertResponse.alerts[0].description,
-                        BitmapFactory.decodeResource(context.resources, R.drawable.weather_icon)
-                    )
-                }
-                else{
-                    startService(context, description = it.alertResponse.alerts[0].description)
-                }
+                repo.deleteAlertByDate(datetime)
             }
-        }
     }
-    fun startService(context: Context,description:String) {
+
+    private fun showNotification(description: String) {
+        val alertNotificationService =
+            AlertNotificationService(context)
+        alertNotificationService.showAlertNotification(
+            description,
+            BitmapFactory.decodeResource(context.resources, R.drawable.weather_icon)
+        )
+    }
+
+    private fun showDialog(description: String) {
+        startService(context, description)
+    }
+
+    private fun startService(context: Context, description: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.i("TAG", "startService: ")
             if (Settings.canDrawOverlays(context)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                   context.startForegroundService(Intent(context, ForegroundService::class.java))
+                    context.startForegroundService(Intent(context, ForegroundService::class.java))
                 } else {
-                   context.startService(Intent(context, ForegroundService::class.java))
+                    context.startService(Intent(context, ForegroundService::class.java))
                 }
             }
         } else {
-          val intent =  Intent(context, ForegroundService::class.java)
-                intent.putExtra("description",description)
-           context.startService(intent)
+            val intent = Intent(context, ForegroundService::class.java)
+            intent.putExtra("description", description)
+            context.startService(intent)
         }
     }
 }

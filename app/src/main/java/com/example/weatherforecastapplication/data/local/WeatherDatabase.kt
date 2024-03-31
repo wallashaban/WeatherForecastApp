@@ -18,7 +18,7 @@ import com.example.weatherforecastapplication.data.models.WeatherListConverter
 import com.example.weatherforecastapplication.data.models.WindConverter
 
 @Database(entities = [Favourites::class, AlertRoom::class,
-                     FiveDaysForecast::class], version = 8, exportSchema = false)
+                     FiveDaysForecast::class], version = 9, exportSchema = false)
 @TypeConverters(
     CurrentWeatherConverter::class, CoordConverter::class
 , MainConverter::class, WeatherListConverter::class,
@@ -39,7 +39,7 @@ abstract class WeatherDatabase : RoomDatabase() {
                     klass = WeatherDatabase::class.java,
                     name = "weather"
                 )
-                   // .fallbackToDestructiveMigration()
+                    //.fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.alertFeature.view.Window
 
@@ -18,6 +19,7 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.i("TAG", "onCreate: Service")
         mediaPlayer = MediaPlayer.create(this,R.raw.alarm)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
@@ -32,6 +34,7 @@ class ForegroundService : Service() {
 
     }
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        Log.i("TAG", "onStartCommand: ")
         val desc = intent.getStringExtra("description")
         val window = Window(this@ForegroundService,
             desc?:"The weather is fine :)")

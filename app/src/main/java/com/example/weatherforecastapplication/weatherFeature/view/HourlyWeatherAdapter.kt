@@ -3,6 +3,7 @@ package com.example.weatherforecastapplication.weatherFeature.view
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.HourlyWeatherLayoutBinding
 import com.example.weatherforecastapplication.data.models.CurrentWeather
+import com.example.weatherforecastapplication.utils.isDark
+import com.example.weatherforecastapplication.utils.setCardViewBackground
 
 class HourlyWeatherAdapter(
     val context: Context,
@@ -27,6 +30,7 @@ class HourlyWeatherAdapter(
     }
 
     override fun onBindViewHolder(holder: HourlyViewHolder, position: Int) {
+        binding.hourlyCard.setCardBackgroundColor( setCardViewBackground(context))
         val currentWeather: CurrentWeather = getItem(position)
         binding.weather = currentWeather
     }

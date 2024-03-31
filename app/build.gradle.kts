@@ -74,6 +74,9 @@ dependencies {
     androidTestImplementation ("org.hamcrest:hamcrest-library:2.2")
 
 
+    //lottie
+    implementation ("com.airbnb.android:lottie:4.1.0")
+
     // AndroidX and Robolectric
     testImplementation ("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation ("androidx.test:core-ktx:1.5.0")
@@ -89,14 +92,13 @@ dependencies {
     androidTestImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
 
-
-
-
+    //test view model
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
 
     // Dependencies for local unit tests
-    testImplementation ("org.hamcrest:hamcrest-all:2.2")
-
+  /*  testImplementation ("org.hamcrest:hamcrest-all:2.2")
+    androidTestImplementation ("org.hamcrest:hamcrest-all:2.2")*/
 
     // InstantTaskExecutorRule
     testImplementation ("androidx.arch.core:core-testing:2.2.0")

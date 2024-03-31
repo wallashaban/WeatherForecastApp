@@ -1,5 +1,6 @@
 package com.example.weatherforecastapplication.alertFeature.view
 
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -17,6 +18,9 @@ import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.alertFeature.viewModel.AlertViewModel
 import com.example.weatherforecastapplication.databinding.FragmentAlertBinding
 import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
+import com.example.weatherforecastapplication.data.models.AlertRoom
+import com.example.weatherforecastapplication.data.models.Daos
+import com.example.weatherforecastapplication.data.models.Favourites
 import com.example.weatherforecastapplication.data.remote.RemoteDataSourceImpl
 import com.example.weatherforecastapplication.utils.ApiState
 import com.example.weatherforecastapplication.utils.checkConnectivity
@@ -24,53 +28,58 @@ import com.example.weatherforecastapplication.utils.checkOverlayPermission
 import com.example.weatherforecastapplication.utils.popMapFragmentFromTheBackStack
 import com.example.weatherforecastapplication.utils.showSnackbar
 import com.example.weatherforecastapplication.data.repo.WeatherRepositoryImpl
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = "AlertFragment"
+
 class AlertFragment : Fragment() {
 
     private lateinit var binding: FragmentAlertBinding
     private lateinit var alertViewModel: AlertViewModel
     private lateinit var alertFactory: AlertViewModel.Factory
     private lateinit var adapter: AlertsAdapter
-    private lateinit var manager : LinearLayoutManager
-    private  var lat:Float = 0F
-    private var long:Float = 0F
+    private lateinit var manager: LinearLayoutManager
+    private var lat: Float = 0F
+    private var long: Float = 0F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         alertFactory = AlertViewModel.Factory(
             WeatherRepositoryImpl.getInstance(
-                localDataSource = LocalDataSourceImpl.getInstance(requireContext()),
+                localDataSource = LocalDataSourceImpl.getInstance(Daos(requireContext())),
                 remoteDataSource = RemoteDataSourceImpl
             )
         )
         alertViewModel = ViewModelProvider(
-            requireActivity(),alertFactory
+            requireActivity(), alertFactory
         )[AlertViewModel::class.java]
 
 
         lat = arguments?.getFloat("latitude") ?: 0F
         long = arguments?.getFloat("longitude") ?: 0F
 
-        if(lat!=0F&&long!=0F) {
+        if (lat != 0F && long != 0F) {
             checkOverlayPermission(requireContext())
             val context = requireContext()
-            val alertDialog = AlertDialog(context,lat.toDouble(),long.toDouble(),
-                alertViewModel)
+            val alertDialog = AlertDialog(
+                context, lat.toDouble(), long.toDouble(),
+                alertViewModel,
+                requireActivity()
+            )
 
             alertDialog.show()
         }
         alertViewModel.getAlert()
-       }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-       binding = FragmentAlertBinding.inflate(layoutInflater, container, false)
+        binding = FragmentAlertBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -78,21 +87,20 @@ class AlertFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         popMapFragmentFromTheBackStack(requireView())
         binding.alertAdd.setOnClickListener {
-            if(checkConnectivity(requireContext())) {
+            if (checkConnectivity(requireContext())) {
                 val action = AlertFragmentDirections
                     .actionAlertFragmentToMapFragment("alert")
                 Navigation.findNavController(requireView())
                     .navigate(action)
-            }else{
-                showSnackbar(requireActivity(),getString(R.string.noInternetMessage))
+            } else {
+                showSnackbar(requireActivity(), getString(R.string.noInternetMessage))
             }
         }
 
 
         adapter = AlertsAdapter(requireContext())
         { alert ->
-            alertViewModel.deleteAlert(alert)
-            WorkManager.getInstance(requireContext()).cancelWorkById(alert.id)
+            showAlertDialog(alert)
         }
 
         manager = LinearLayoutManager(requireContext())
@@ -120,20 +128,14 @@ class AlertFragment : Fragment() {
                         }
 
                         is ApiState.Success -> {
+                            if (result.data.size == 0) {
+                                binding.noAlert.visibility = View.VISIBLE
+                            } else {
+                                binding.noAlert.visibility = View.GONE
+                            }
                             binding.alertRv.visibility = View.VISIBLE
                             binding.progressBar2.visibility = View.GONE
-                            val workManager = WorkManager.getInstance(requireContext())
-
-//                            result.data.forEach {
-//                                val workInfoLiveData =
-//                                    workManager.getWorkInfoByIdLiveData(it.id)
-//                                workInfoLiveData.observe(viewLifecycleOwner) { workInfo ->
-//                                    if (workInfo == null || workInfo.state.isFinished) {
-//                                        alertViewModel.deleteAlert(it)
-//                                    }
-//                                }
-                                adapter.submitList(result.data)
-                           // }
+                            adapter.submitList(result.data)
                         }
                     }
                 }
@@ -141,5 +143,21 @@ class AlertFragment : Fragment() {
 
         }
 
+    }
+
+    private fun showAlertDialog(alert: AlertRoom) {
+        MaterialAlertDialogBuilder(requireContext())
+            //.setTitle(R.string.dialogTitle)
+            .setMessage(getString(R.string.alertMessage))
+            .setPositiveButton(
+                getString(R.string.yes)
+            ) { dialog: DialogInterface?, which: Int ->
+                alertViewModel.deleteAlert(alert)
+                WorkManager.getInstance(requireContext()).cancelWorkById(alert.id)
+            }
+            .setNegativeButton(
+                getString(R.string.no)
+            ) { dialog: DialogInterface?, which: Int -> }
+            .show()
     }
 }

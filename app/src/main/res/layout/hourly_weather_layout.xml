@@ -19,9 +19,9 @@
         android:layout_marginEnd="12dp">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/hourlyCard"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/lightNavyBlue"
             app:cardCornerRadius="24dp"
             app:cardElevation="24dp"
             app:layout_constraintStart_toStartOf="parent"

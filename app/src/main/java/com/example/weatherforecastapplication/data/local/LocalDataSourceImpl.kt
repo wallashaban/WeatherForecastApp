@@ -1,12 +1,13 @@
 package com.example.weatherforecastapplication.data.local
-import android.content.Context
+import android.util.Log
 import com.example.weatherforecastapplication.data.models.AlertRoom
+import com.example.weatherforecastapplication.data.models.Daos
 import com.example.weatherforecastapplication.data.models.Favourites
 import com.example.weatherforecastapplication.data.models.FiveDaysForecast
 import kotlinx.coroutines.flow.Flow
 
-class LocalDataSourceImpl private constructor(private val context: Context) : LocalDataSource {
-    private val favouritesDao: FavouritesDao by lazy {
+class LocalDataSourceImpl private constructor(private val daos: Daos) : LocalDataSource {
+  /*  private val favouritesDao: FavouritesDao by lazy {
         WeatherDatabase.getInstance(context).getWeatherFavouritesDao()
     }
     private val alertsDao: AlertsDao by lazy {
@@ -14,51 +15,55 @@ class LocalDataSourceImpl private constructor(private val context: Context) : Lo
     }
     private val weatherDao: WeatherDao by lazy {
         WeatherDatabase.getInstance(context).getWeatherDao()
-    }
+    }*/
 
     override fun getAllFavouritesWeather(): Flow<List<Favourites>> {
-        return favouritesDao.getAllFavouritesWeather()
+        return daos.favouritesDao.getAllFavouritesWeather()
     }
 
     override suspend fun addWeatherToFavourites(weather: Favourites) {
-        favouritesDao.addWeatherToFavourites(weather)
+        daos.favouritesDao.addWeatherToFavourites(weather)
     }
 
     override suspend fun deleteWeatherFromFavourites(weather: Favourites) {
-        favouritesDao.deleteWeatherFromFavourites(weather)
+        daos.favouritesDao.deleteWeatherFromFavourites(weather)
     }
 
     override fun getAlerts(): Flow<List<AlertRoom>> {
-        return  alertsDao.getAlerts()
+        return  daos.alertsDao.getAlerts()
     }
 
     override suspend fun saveAlert(alert: AlertRoom) {
-        alertsDao.saveAlert(alert)
+        daos.alertsDao.saveAlert(alert)
     }
 
     override suspend fun deleteAlert(alert: AlertRoom) {
-        alertsDao.deleteAlert(alert)
+        daos.alertsDao.deleteAlert(alert)
+    }
+
+    override suspend fun deleteAlertByDate(datetime: String) {
+        daos.alertsDao.deleteAlertByDate(datetime)
     }
 
     override fun getCurrentWeather(): Flow<FiveDaysForecast> {
-       return weatherDao.getCurrentWeather()
+       return daos.weatherDao.getCurrentWeather()
     }
 
     override suspend fun deleteCurrentWeather(date:String) {
-        return weatherDao.deleteCurrentWeather(date)
+        return daos.weatherDao.deleteCurrentWeather(date)
     }
 
     override suspend fun addCurrentWeather(weather: FiveDaysForecast) {
-        weatherDao.addCurrentWeather(weather)
+        daos.weatherDao.addCurrentWeather(weather)
     }
 
 
     companion object {
         @Volatile
         private var INSTANCE: LocalDataSourceImpl? = null
-        fun getInstance(ctx: Context): LocalDataSourceImpl {
+        fun getInstance(daos: Daos): LocalDataSourceImpl {
             return INSTANCE ?: synchronized(this) {
-                val instance = LocalDataSourceImpl(ctx)
+                val instance = LocalDataSourceImpl(daos)
                 INSTANCE = instance
                 instance
             }

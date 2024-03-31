@@ -1,12 +1,13 @@
 package com.example.weatherforecastapplication.alertFeature.view
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Window
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.NetworkType
@@ -17,22 +18,29 @@ import com.example.weatherforecastapplication.data.models.AlertRoom
 import com.example.weatherforecastapplication.alertFeature.model.MyWorkManager
 import com.example.weatherforecastapplication.alertFeature.viewModel.AlertViewModel
 import com.example.weatherforecastapplication.databinding.DialogLayoutBinding
+import com.example.weatherforecastapplication.utils.convertArabicDatetimeToEnglish
 import com.example.weatherforecastapplication.utils.getAddressFromCoordinates
+import com.example.weatherforecastapplication.utils.isNotificationPermissionGranted
+import com.example.weatherforecastapplication.utils.requestNotificationPermission
+import com.example.weatherforecastapplication.utils.requestNotificationPermissions
 import com.example.weatherforecastapplication.utils.showDatePickerDialog
+import com.example.weatherforecastapplication.utils.showSnackbar
 import com.example.weatherforecastapplication.utils.showTimePickerDialog
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
 class AlertDialog(context: Context,
                   val lat: Double,
                   val long: Double,
-                  private val alertViewModel: AlertViewModel
+                  private val alertViewModel: AlertViewModel,
+    val activity: Activity
 
                  ) : Dialog(context) {
-                     private var isNotification = true
+                     private var isNotification :Boolean = true
 
     private lateinit var binding: DialogLayoutBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,9 +53,27 @@ class AlertDialog(context: Context,
         binding.radioGroupNotification.setOnCheckedChangeListener(object :
         RadioGroup.OnCheckedChangeListener{
             override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {
-                Log.i("TAG", "onCheckedChanged: $checkedId")
+
                 val selectedRadioButton: RadioButton = findViewById(checkedId)
-                isNotification = selectedRadioButton != findViewById(R.id.alarm)
+                        if( selectedRadioButton != findViewById(R.id.alarm))
+                   {
+
+                       if(isNotificationPermissionGranted(context))
+                       {
+                           isNotification = true
+                       }else{
+                           isNotification = true
+                           requestNotificationPermissions(
+                               activity
+                           )
+//                           Toast.makeText(context,
+//                               "We don't have the permission please enable it ",
+//                               Toast.LENGTH_SHORT)
+//                               .show()
+                       }
+                   }else{
+                       isNotification = false
+                   }
             }
 
         })
@@ -65,39 +91,27 @@ class AlertDialog(context: Context,
         }
 
         binding.save.setOnClickListener {
-            Log.i("TAG", "onCreate: date" +binding.dateAlert.text.toString() +
-                    " ${binding.timeAlert.text.toString()}")
-            val dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
+            val datetime = binding.dateAlert.text.toString() +
+                    " ${binding.timeAlert.text}"
+            val dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm",
+                Locale("ar"))
             val ldt = LocalDateTime.parse(
-                binding.dateAlert.text.toString() +
-                    " ${binding.timeAlert.text}", dtf)
+                convertArabicDatetimeToEnglish(datetime), dtf)
             val millis = ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             scheduleWork(context,
                 millis,
-                lat,long,isNotification)
+                lat,long,isNotification) // area of error take care
             dismiss()
         }
     }
 
+
     private fun scheduleWork(context: Context,targetTimeMillis:Long,lat:Double,long: Double,
                              isNotification:Boolean) {
-        val inputData = Data.Builder()
-            .putDouble("lat", lat)
-            .putDouble("lon", long)
-            .putBoolean("notification",isNotification)
-            .build()
-        val currentTimeMillis = System.currentTimeMillis()
-        val initialDelay = targetTimeMillis - currentTimeMillis
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
 
-        val workRequest = OneTimeWorkRequestBuilder<MyWorkManager>()
-            .setConstraints(constraints)
-            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-            .setInputData(inputData)
-            .addTag("alert")
-            .build()
+        val datetime = "${binding. dateAlert.text} ${binding.timeAlert.text}"
+        val workRequest = alertViewModel
+            .scheduleWork(targetTimeMillis,lat,long,isNotification,datetime)
 
         WorkManager.getInstance(context).enqueue(workRequest)
         val alert = AlertRoom(
@@ -107,8 +121,7 @@ class AlertDialog(context: Context,
                 lat,
                 long,
             ),
-            binding.timeAlert.text.toString(),
-           binding. dateAlert.text.toString(),
+           datetime,
             lat,
             long,
         )

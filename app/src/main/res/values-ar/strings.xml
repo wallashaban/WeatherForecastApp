@@ -43,5 +43,21 @@
     <string name="humadity">الرطوبة</string>
     <string name="mPerS">ث/م</string>
     <string name="mPerH">س/م</string>
+    <string name="noInternetMessage">عذرًا، لكنك غير متصل بالإنترنت</string>
+    <string name="fav">المفضلة</string>
+    <string name="en">en</string>
+    <string name="alertMessage">هل أنت متأكد أنك تريد حذف هذا؟</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+    <string name="meterPerSecond">م/ث</string>
+    <string name="milePerHour">م/س</string>
+    <string name="save">هل ترغب في حفظ هذا الموقع؟</string>
+    <string name="weatherDescription">الطقس جيد ولا توجد مخاطر لمواجهتها :)</string>
+    <string name="weatherAlarm">تنبيه الطقس</string>
+    <string name="savedalerts">التنبيهات الخاصة بك</string>
+    <string name="noAlerts">لا تنبيهات</string>
+    <string name="noFav">لا تفضيلات</string>
+
+
 
 </resources>

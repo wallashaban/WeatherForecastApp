@@ -1,5 +1,6 @@
 package com.example.weatherforecastapplication
 
+import android.Manifest
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.core.view.GravityCompat
@@ -52,6 +53,8 @@ class MainActivity : BaseActivity() {
             }
         }
     }
+
+
     override fun onSupportNavigateUp(): Boolean {
         return super.onSupportNavigateUp() || navController.navigateUp()
     }

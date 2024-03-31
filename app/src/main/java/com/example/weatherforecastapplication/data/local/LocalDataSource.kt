@@ -17,6 +17,7 @@ interface LocalDataSource {
 
     suspend fun saveAlert(alert: AlertRoom)
     suspend fun deleteAlert(alert: AlertRoom)
+    suspend fun deleteAlertByDate(datetime: String)
 
     // currentWeather
     fun getCurrentWeather():Flow<FiveDaysForecast>

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -11,8 +12,6 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
-
-
 
     <application
         android:name=".utils.MyApp"
@@ -26,10 +25,14 @@
         android:theme="@style/Theme.WeatherForecastApplication"
         tools:targetApi="31">
         <service
+            android:name=".alertFeature.model.WorkService"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
             android:name=".alertFeature.model.ForegroundService"
             android:enabled="true"
-            android:foregroundServiceType="mediaPlayback"
-            android:exported="true"></service>
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback" />
 
         <activity
             android:name=".BaseActivity"

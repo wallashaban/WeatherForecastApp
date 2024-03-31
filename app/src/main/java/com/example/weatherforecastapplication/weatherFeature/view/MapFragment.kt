@@ -13,6 +13,7 @@ import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentMapBinding
 import com.example.weatherforecastapplication.data.models.Favourites
 import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
+import com.example.weatherforecastapplication.data.models.Daos
 import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
 import com.example.weatherforecastapplication.utils.getAddressFromCoordinates
 import com.google.android.gms.common.api.Status
@@ -53,7 +54,7 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         favViewModelFactory = FavouritesViewModel.Factory(
-                LocalDataSourceImpl.getInstance(requireContext())
+                LocalDataSourceImpl.getInstance(Daos( requireContext()))
         )
         favViewModel = ViewModelProvider(
             this, favViewModelFactory

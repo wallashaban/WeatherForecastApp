@@ -29,4 +29,7 @@ interface WeatherRepository {
 
     suspend fun addCurrentWeather(weather: FiveDaysForecast)
 
+    suspend fun deleteAlertByDate(datetime: String)
+
+
 }

@@ -9,10 +9,10 @@
     tools:context=".settings.view.SettingsFragment">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/settingsCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:backgroundTint="@color/lightNavyBlue"
         app:cardCornerRadius="24dp"
         app:cardElevation="24dp"
         app:layout_constraintStart_toStartOf="parent"

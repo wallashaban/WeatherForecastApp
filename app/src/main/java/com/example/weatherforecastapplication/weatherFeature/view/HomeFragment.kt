@@ -5,6 +5,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.Context.*
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -13,16 +14,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.airbnb.lottie.LottieAnimationView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentHomeBinding
 import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
 import com.example.weatherforecastapplication.data.models.CurrentWeather
+import com.example.weatherforecastapplication.data.models.Daos
 import com.example.weatherforecastapplication.data.models.FiveDaysForecast
 import com.example.weatherforecastapplication.data.remote.RemoteDataSourceImpl
 import com.example.weatherforecastapplication.data.models.WeatherParam
@@ -44,6 +48,9 @@ import com.example.weatherforecastapplication.utils.requestPermission
 import com.example.weatherforecastapplication.utils.showSnackbar
 import com.example.weatherforecastapplication.weatherFeature.viewModel.WeatherViewModel
 import com.example.weatherforecastapplication.data.repo.WeatherRepositoryImpl
+import com.example.weatherforecastapplication.utils.isDark
+import com.example.weatherforecastapplication.utils.setCardViewBackground
+import com.example.weatherforecastapplication.utils.showSnowOrRain
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -68,6 +75,7 @@ class HomeFragment : Fragment() {
     private lateinit var currentWeather: CurrentWeather
     private var isChanged = false
     private var isTempChanged = false
+    private var islangChanged = false
 
     // settings 
     private lateinit var settingsViewModel: SettingsViewModel
@@ -80,15 +88,17 @@ class HomeFragment : Fragment() {
     private var long: Float = 0F
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         settingsViewModel = ViewModelProvider(
             requireActivity()
         )[SettingsViewModel::class.java]
         weatherViewModelFactory = WeatherViewModel.Factory(
             WeatherRepositoryImpl.getInstance(
                 RemoteDataSourceImpl,
-                LocalDataSourceImpl.getInstance(requireContext())
+                LocalDataSourceImpl.getInstance(Daos(requireContext()))
             )
         )
         weatherViewModel = ViewModelProvider(
@@ -106,6 +116,7 @@ class HomeFragment : Fragment() {
                 Storage.getCurrentUnit(requireActivity()),
                 Storage.getPreferredLocale(requireActivity())
             )
+            Log.i(TAG, "onCreate: lat long")
             weatherViewModel.getFiveDaysForecast(weatherParam)
         }
     }
@@ -121,6 +132,9 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.cardView.setCardBackgroundColor(  setCardViewBackground(requireContext()))
+        binding.detailsCardView.setCardBackgroundColor( setCardViewBackground(requireContext()))
+
         manager = LinearLayoutManager(requireContext())
         manager.orientation = LinearLayoutManager.HORIZONTAL
         hourlyWeatherAdapter = HourlyWeatherAdapter(requireContext())
@@ -142,8 +156,10 @@ class HomeFragment : Fragment() {
             { isGranted ->
                 if (isGranted) {
                     if (isLocationEnable(requireContext())) {
-                        if (lat == 0F && long == 0F && weatherViewModel.wind == null)
+                        if (lat == 0F && long == 0F && weatherViewModel.wind == null) {
+                            Log.i(TAG, "onViewCreated: before Get fresh location")
                             getFreshLocation()
+                        }
                     } else {
                         enableLocationServices(requireActivity())
                     }
@@ -176,6 +192,7 @@ class HomeFragment : Fragment() {
                         }
 
                         is ApiState.Success -> {
+
                             if (isChanged && !isTempChanged) {
                                 result.data.currentDate = LocalDate.now().toString()
                                 weatherViewModel.addCurrentWeather(result.data)
@@ -190,6 +207,9 @@ class HomeFragment : Fragment() {
                             binding.homeProgressBar.visibility = View.GONE
                             binding.homeData.visibility = View.VISIBLE
                             currentWeather = result.data.list[0]
+                            showSnowOrRain(
+                                requireActivity(),
+                                currentWeather.main.temp)
                             setCurrentWeather(result)
                             // hourly weather
                             setHourlyWeather(result)
@@ -331,12 +351,13 @@ class HomeFragment : Fragment() {
         }
     }
     private fun getWeather(weatherParam: WeatherParam) {
+        Log.i(TAG, "getWeather: ${Storage.getCurrentDate(requireContext())}")
         if (Storage.getCurrentDate(requireContext()) == LocalDate.now()
-                .toString() && !isTempChanged
+                .toString() && !isTempChanged && lat==0F
         ) {
             Log.i(TAG, "onLocationResult: getCurrentLocation")
             weatherViewModel.getCurrentWeatherUsingRoom()
-        } else {
+        } else if(isTempChanged && lat==0F){
             if (checkConnectivity(requireContext())) {
                 weatherViewModel.getFiveDaysForecast(weatherParam)
                 isChanged = true

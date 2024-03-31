@@ -24,6 +24,10 @@
     <string name="noInternetMessage">Sorry, but you are not connected to the internet</string>
     <string name="fav">fav</string>
     <string name="en">en</string>
+    <string name="alertMessage">Are you sure you want to delete this ?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
     <string name="ar">ar</string>
     <string name="system">sys_def</string>
     <string name="mPerH">m/h</string>
@@ -50,4 +54,9 @@
     <string name="meterPerSecond">m/s</string>
     <string name="milePerHour">m/h</string>
     <string name="save">Save this location?</string>
+    <string name="weatherDescription">The weather is fine no risks to face :)</string>
+    <string name="weatherAlarm">Weather Alarm</string>
+    <string name="savedalerts">Your Alerts</string>
+    <string name="noAlerts">No Alerts</string>
+    <string name="noFav">No Favourites</string>
 </resources>

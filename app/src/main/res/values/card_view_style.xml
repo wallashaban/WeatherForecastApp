@@ -5,7 +5,6 @@
 
         <item name="cardCornerRadius">32dp</item>
 
-        <item name="cardBackgroundColor">@color/lightNavyBlue</item>
 
         <item name="contentPadding">16dp</item>
 

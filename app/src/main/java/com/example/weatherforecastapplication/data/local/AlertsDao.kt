@@ -16,6 +16,8 @@ interface AlertsDao {
     suspend fun saveAlert(alert: AlertRoom)
     @Delete
     suspend fun deleteAlert(alert: AlertRoom)
+    @Query("DELETE FROM alerts WHERE datetime =:datetime")
+    suspend fun deleteAlertByDate(datetime: String)
 
 
 }

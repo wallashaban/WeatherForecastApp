@@ -26,6 +26,7 @@ import com.example.weatherforecastapplication.utils.getCurrentSpinnerLocationVal
 import com.example.weatherforecastapplication.utils.getLangSpinnerValue
 import com.example.weatherforecastapplication.utils.getTempSpinnerValue
 import com.example.weatherforecastapplication.utils.getWindUnitSpinnerValue
+import com.example.weatherforecastapplication.utils.setCardViewBackground
 import com.example.weatherforecastapplication.utils.showSnackbar
 import kotlinx.coroutines.launch
 
@@ -49,6 +50,7 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.settingsCard.setCardBackgroundColor( setCardViewBackground(requireContext()))
 
         val tempItems = listOf(
             getString(R.string.celsius),

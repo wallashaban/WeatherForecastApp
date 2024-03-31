@@ -3,6 +3,7 @@ package com.example.weatherforecastapplication.favouritesFeature.view
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FavLayoutBinding
 import com.example.weatherforecastapplication.data.models.Favourites
+import com.example.weatherforecastapplication.utils.setCardViewBackground
 
 class FavouritesAdapter(
     val context: Context,
@@ -30,6 +32,7 @@ class FavouritesAdapter(
     }
 
     override fun onBindViewHolder(holder: FavouritesViewHolder, position: Int) {
+        binding.favCard.setCardBackgroundColor( setCardViewBackground(context))
         val current = getItem(position)
         binding.weather = current
         binding.delete.setOnClickListener {

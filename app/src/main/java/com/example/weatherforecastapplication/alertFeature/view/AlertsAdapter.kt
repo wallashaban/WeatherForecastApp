@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.data.models.AlertRoom
 import com.example.weatherforecastapplication.databinding.AlertLayoutBinding
+import com.example.weatherforecastapplication.utils.setCardViewBackground
 
 class AlertsAdapter(
     val context: Context,
@@ -29,6 +30,8 @@ class AlertsAdapter(
     }
 
     override fun onBindViewHolder(holder: AlertViewHolder, position: Int) {
+        binding.alertCard.setCardBackgroundColor( setCardViewBackground(context))
+
         val current = getItem(position)
         binding.alert = current
         binding.deleteAlert.setOnClickListener {

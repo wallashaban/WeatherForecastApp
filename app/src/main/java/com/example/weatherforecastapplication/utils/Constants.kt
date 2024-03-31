@@ -3,8 +3,10 @@ package com.example.weatherforecastapplication.utils
 import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.NotificationManager
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.location.Geocoder
 import android.location.LocationManager
@@ -23,11 +25,14 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.navigation.Navigation
+import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.weatherforecastapplication.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -44,6 +49,7 @@ const val API_KEY: String = "93d6a7e396a4d256d304951fb4f21c3a"
 const val MAP_API_KEY: String = "AIzaSyBueNJuuCyZG5EmAYpfU2MYglQd-44YuT8"
 var WIND_UNIT :String = "m/s"
 const val REQUEST_LOCATION_CODE = 5005
+const val REQUEST_PERMISSION_CODE = 5000
 
 
 
@@ -321,6 +327,164 @@ fun showSnackbar(activity: Activity,message: String) {
     snackbar.show()
 }
 ///////////////////////////////////////////////////////////////////
+// Notification permission
+fun requestNotificationPermission(context: Context) {
+    val notificationManager = context
+        .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    if ( !notificationManager.isNotificationPolicyAccessGranted) {
+        val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+        context.startActivity(intent)
+    }
+}
+fun isNotificationPermissionGranted(context: Context): Boolean {
+    val notificationManager = context
+        .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return notificationManager.isNotificationPolicyAccessGranted
+    } else {
+      return notificationManager.areNotificationsEnabled()
+    }
+}
+
+fun requestNotificationPermissions(activity: Activity) {
+    Log.i(TAG, "requestLocation: ")
+    requestPermissions(
+        activity,
+        arrayOf(
+            Manifest.permission.ACCESS_NOTIFICATION_POLICY,
+        ),
+        REQUEST_PERMISSION_CODE
+    )
+}
+
+
+
+fun convertArabicDatetimeToEnglish(input: String): String {
+    val arabicNumerals = listOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
+    val englishNumerals = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+
+    var result = input
+    arabicNumerals.forEachIndexed { index, arabicNumeral ->
+        result = result.replace(arabicNumeral, englishNumerals[index])
+    }
+    return result
+}
+fun blaBla(context: Activity) {
+    /*val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(context, "Notifications permission granted", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+//            Toast.makeText(
+//                this, "${getString(R.string.app_name)} can't post notifications without Notification permission",
+//                Toast.LENGTH_LONG
+//            ).show()
+
+            Snackbar.make(
+                "",
+                Snackbar.LENGTH_INDEFINITE
+            ).setAction("Please go to settings") {
+
+            }.show()
+        }
+    }*/
+}
+fun askNotificationPermission(context: Activity) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val settingsIntent: Intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .putExtra(Settings.EXTRA_APP_PACKAGE, "com.example." +
+                    "weatherforecastapplication")
+        context.startActivity(settingsIntent)
+    }
+}
+
+fun showSnowOrRain(activity: Activity,value:Double){
+    val temp = convertTempToCelsius(activity,value)
+    Log.i(TAG, "showSnowOrRain: $temp")
+    if(temp<=0) {
+        activity
+            .findViewById<LottieAnimationView>(R.id.snow)
+            .visibility = View.VISIBLE
+        activity
+            .findViewById<LottieAnimationView>(R.id.rain)
+            .visibility = View.GONE
+    }else if(temp<=10)
+    {
+        activity
+            .findViewById<LottieAnimationView>(R.id.rain)
+            .visibility = View.VISIBLE
+        activity
+            .findViewById<LottieAnimationView>(R.id.snow)
+            .visibility = View.GONE
+    }else
+    {
+        activity
+            .findViewById<LottieAnimationView>(R.id.rain)
+            .visibility = View.GONE
+        activity
+            .findViewById<LottieAnimationView>(R.id.snow)
+            .visibility = View.GONE
+    }
+
+}
+
+fun convertTempToCelsius(context: Context,temp:Double):Double{
+    if (Storage.getCurrentUnit(context)=="imperial")
+        return kelvinToCelsius(temp)
+    else  if (Storage.getCurrentUnit(context)=="standard")
+        return fahrenheitToCelsius(temp)
+    else
+        return temp
+}
+
+fun convertTempToAproppiateUnit(){
+
+}
+fun kelvinToCelsius(kelvin: Double): Double {
+    return kelvin - 273.15
+}
+
+fun celsiusToKelvin(celsius: Double): Double {
+    return celsius + 273.15
+}
+
+fun fahrenheitToCelsius(fahrenheit: Double): Double {
+    return (fahrenheit - 32)/ 1.79999999
+}
+fun celsiusToFahrenheit(celsius: Double): Double {
+    return celsius * 9 / 5 + 32
+}
+
+fun isDark(context: Context): Boolean
+{
+   return Storage.getCurrentTheme(context) ==2
+}
+
+fun setCardViewBackground(context: Context):Int{
+   return if(isDark(context))
+        ContextCompat.getColor(context,R.color.lightNavyBlue)
+    else
+        ContextCompat.getColor(context,R.color.lightBlue)
+}
+
+fun showDialog(context: Activity,) {
+    MaterialAlertDialogBuilder(context)
+        //.setTitle(R.string.dialogTitle)
+        .setMessage("Are you sure you want to delete this ?")
+        .setPositiveButton(
+            "Yes",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
+
+            })
+        .setNegativeButton("No",
+            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> })
+        .show()
+}
 
 
 /*

@@ -68,6 +68,10 @@ import kotlinx.coroutines.flow.Flow
          localDataSource.addCurrentWeather(weather)
      }
 
+     override suspend fun deleteAlertByDate(datetime: String) {
+         localDataSource.deleteAlertByDate(datetime)
+     }
+
      override suspend fun addWeatherToFavourites(weather: Favourites) {
         localDataSource.addWeatherToFavourites(weather)
     }

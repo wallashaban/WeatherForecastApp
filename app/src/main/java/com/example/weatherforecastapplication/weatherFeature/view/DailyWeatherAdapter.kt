@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.DailyWeatherLayoutBinding
 import com.example.weatherforecastapplication.data.models.CurrentWeather
+import com.example.weatherforecastapplication.utils.setCardViewBackground
 
 class DailyWeatherAdapter(
     private val context: Context,
@@ -27,11 +28,9 @@ class DailyWeatherAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        binding.dailyCard.setCardBackgroundColor(setCardViewBackground(context))
         val currentWeather: CurrentWeather = getItem(position)
         binding.weather = currentWeather
-//        holder.constraintLayout.setOnClickListener {
-//            onProductClick(product)
-//        }
     }
 }
 

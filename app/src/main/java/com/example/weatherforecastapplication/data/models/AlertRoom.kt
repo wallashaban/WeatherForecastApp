@@ -6,11 +6,12 @@ import java.util.UUID
 
 @Entity(tableName = "alerts")
 data class AlertRoom (
-    @PrimaryKey
+
     val id:UUID,
     val name:String,
-    val time:String,
-    val date:String,
+   // val time:String,
+    @PrimaryKey
+    val datetime:String,
     val latitude:Double,
     val longitude:Double,
     )
