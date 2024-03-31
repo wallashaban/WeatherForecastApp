@@ -6,4 +6,5 @@
     <color name="lightBlue">#DCF2F1</color>
     <color name="navyBlue">#2A2277</color>
     <color name="lightNavyBlue">#8F8EBA</color>
+    <color name="light">#43FFFFFF</color>
 </resources>

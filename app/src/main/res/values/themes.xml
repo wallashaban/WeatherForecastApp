@@ -3,7 +3,13 @@
     <style name="Theme.WeatherForecastApplication" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="android:windowBackground">@drawable/light_gradient_background</item>
+        <item name="android:windowBackground">@drawable/light</item>
+        <item name="android:colorPrimary">@color/white</item>
+        <item name="android:textColor">@color/white</item>
+<!--
+        <item name="android:spinnerItemStyle">@style/CustomSpinnerStyle</item>
+-->
+
         <item name="navigationViewStyle">@style/MyDrawerStyle</item>
         <item name="actionBarStyle">@style/MyDrawerStyle</item>
         <item name="android:statusBarColor">@color/darkBlue</item>
@@ -12,10 +18,13 @@
 
        <!-- <item name="floatingActionButtonStyle">@style/fabStyleLight</item>-->
 
-
+    </style>
+    <style name="CustomSpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@android:color/black</item>
     </style>
     <style name="MyDrawerStyle" parent="Widget.Design.NavigationView">
-        <item name="android:background">@drawable/light_gradient_background</item>
+        <item name="android:background">@color/darkBlue</item>
     </style>
 
     <style name="IconOverFlow"

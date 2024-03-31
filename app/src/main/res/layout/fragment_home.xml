@@ -37,7 +37,7 @@
             android:id="@+id/homeData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -56,10 +56,10 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardView"
                     style="@style/CardViewStyle"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    app:layout_constraintEnd_toEndOf="@+id/dailyWeatherRv"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -70,13 +70,10 @@
                             android:id="@+id/cityName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="160dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginEnd="156dp"
+                            android:layout_marginTop="8dp"
                             android:text="@{weather.city.name}"
                             android:textAlignment="center"
                             android:textSize="24sp"
-                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -93,31 +90,29 @@
 
                         <ImageView
                             android:id="@+id/imageView"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:layout_marginStart="56dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
                             android:layout_marginTop="8dp"
-                            android:layout_marginEnd="55dp"
+                            android:layout_marginEnd="16dp"
                             android:scaleType="centerCrop"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/weatherStatus"
                             app:url="@{weather.list[0].weather.get(0).icon}"
-                            tools:src="@tools:sample/backgrounds/scenic" />
+                            tools:src="@drawable/menu" />
 
                         <TextView
                             android:id="@+id/temp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="172dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginEnd="181dp"
+                            android:layout_marginStart="32dp"
+                            android:layout_marginTop="4dp"
                             android:layout_marginBottom="8dp"
                             android:paddingTop="8dp"
                             android:text="@{tempUnit}"
                             android:textSize="24sp"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/imageView" />
                     </androidx.constraintlayout.widget.ConstraintLayout>

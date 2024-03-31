@@ -7,7 +7,7 @@
         <item name="navigationViewStyle">@style/MyDrawerStyle</item>
         <item name="actionBarStyle">@style/MyDrawerStyle</item>
         <item name="android:statusBarColor">@color/navyBlue</item>
-        <item name="android:windowBackground">@drawable/dark_gradient_background</item>
+        <item name="android:windowBackground">@drawable/dark_background</item>
         <item name="iconTint">@color/white</item>
         <item name="cardViewBackgroundColor">@color/lightNavyBlue</item>
         <item name="actionOverflowButtonStyle">@style/IconOverFlow</item>
@@ -19,7 +19,7 @@
 
 
     <style name="MyDrawerStyle" parent="Widget.Design.NavigationView">
-        <item name="android:background">@drawable/dark_gradient_background</item>
+        <item name="android:background">@color/navyBlue</item>
         <item name="actionMenuTextColor">@color/white</item>
         <item name="actionMenuTextAppearance">@color/white</item>
     </style>

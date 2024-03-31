@@ -467,9 +467,9 @@ fun isDark(context: Context): Boolean
 
 fun setCardViewBackground(context: Context):Int{
    return if(isDark(context))
-        ContextCompat.getColor(context,R.color.lightNavyBlue)
+        ContextCompat.getColor(context,R.color.light)
     else
-        ContextCompat.getColor(context,R.color.lightBlue)
+        ContextCompat.getColor(context,R.color.light)
 }
 
 fun showDialog(context: Activity,) {
