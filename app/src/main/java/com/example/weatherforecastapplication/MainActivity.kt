@@ -22,15 +22,10 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-     /*   Thread {
-            WeatherDatabase.getInstance(this).clearAllTables();
-            this.deleteDatabase("weather");
-        }.start()*/
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        applyMode(applicationContext)
-        LocaleUtil.applyLocalizedContext(this, Storage.getPreferredLocale(this))
+
        binding. menu.setOnClickListener {
             if (binding.drawer .isDrawerOpen(GravityCompat.START)) {
                 binding.drawer.closeDrawer(GravityCompat.START)

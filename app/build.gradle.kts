@@ -44,6 +44,8 @@ android {
 
 dependencies {
 
+
+    implementation("com.google.mlkit:translate:17.0.2")
     // test
     // Dependencies for local unit tests
     testImplementation ("junit:junit:4.13.2")

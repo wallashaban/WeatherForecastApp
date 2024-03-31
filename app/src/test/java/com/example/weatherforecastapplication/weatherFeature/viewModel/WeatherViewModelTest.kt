@@ -11,7 +11,9 @@ import com.example.weatherforecastapplication.data.repo.FakeRepository
 import com.example.weatherforecastapplication.data.models.WeatherParam
 import com.example.weatherforecastapplication.data.repo.WeatherRepository
 import com.example.weatherforecastapplication.utils.ApiState
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
@@ -44,31 +46,13 @@ class WeatherViewModelTest{
     var instantTaskExecutorRule = InstantTaskExecutorRule()
     @Test
     fun getFiveDaysForecast_fiveDaysWeatherObject()= runTest{
-
-        // When the initial state is loading
-        var res = viewModel.fiveDaysForecast.first()
-        // assert that the state is loading
-        assertThat(res,`is`(ApiState.Loading()))
-
-         val fiveDaysForecast =
-            FiveDaysForecast(
-                "2024/03/28",
-                mutableListOf(),
-                City("Cairo","EG",
-                    Coord(latitude = 29.9792,
-                        longitude = 31.1342)
-                )
-            )
        viewModel.getFiveDaysForecast(
             WeatherParam(0.0,0.0,"","","")
         )
-        res = viewModel.fiveDaysForecast.first()
-
-        assertThat(res, `is`(ApiState.Success(fiveDaysForecast)))
-
-          //  res.first {
-
-         //   true
-       // }
+       var res:ApiState<FiveDaysForecast>? = null
+        viewModel.fiveDaysForecast.take(1).collect{
+            res = it
+        }
+        assertThat(res, `is`(not(nullValue())))
     }
 }

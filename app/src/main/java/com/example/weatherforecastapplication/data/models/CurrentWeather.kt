@@ -23,7 +23,7 @@ data class CurrentWeather(
     val timezone: Int,
     @SerializedName("cod")
     val code: Int,
-    val name: String,
+    var name: String,
 )
 
 
@@ -119,7 +119,7 @@ data class Wind(
     val gust: Double
 )
 
-data class Weather(val id: String, val main: String, val description: String, val icon: String)
+data class Weather(val id: String, val main: String, var description: String, val icon: String)
 
 
 data class Main(

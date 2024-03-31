@@ -18,6 +18,7 @@ class WeatherViewModel(private val _repo: WeatherRepository) : ViewModel() {
 
     var unit:String? = null
     var wind:String? = null
+    var isFirst:Boolean = true
     private var _currentWeather = MutableStateFlow<ApiState<FiveDaysForecast>>(ApiState.Loading())
     var currentWeather= _currentWeather.asStateFlow()
     private var _fiveDaysForecast = MutableStateFlow<ApiState<FiveDaysForecast>>(ApiState.Loading())
@@ -63,11 +64,6 @@ class WeatherViewModel(private val _repo: WeatherRepository) : ViewModel() {
         }
     }
 
-//    fun saveCurrentWeatherToRoom(weather: CurrentWeather){
-//        viewModelScope.launch(Dispatchers.IO) {
-//             _repo.addWeatherToFavourites(weather)
-//        }
-//    }
 
     class Factory(private val _repo: WeatherRepository) :
         ViewModelProvider.Factory {

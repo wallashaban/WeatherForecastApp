@@ -48,6 +48,7 @@ import com.example.weatherforecastapplication.data.repo.WeatherRepositoryImpl
 import com.example.weatherforecastapplication.utils.isDark
 import com.example.weatherforecastapplication.utils.setCardViewBackground
 import com.example.weatherforecastapplication.utils.showSnowOrRain
+import com.example.weatherforecastapplication.utils.translateToArabic
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -192,6 +193,7 @@ class HomeFragment : Fragment() {
 
                         is ApiState.Success -> {
 
+
                             if (isChanged && !isTempChanged) {
                                 result.data.currentDate = LocalDate.now().toString()
                                 weatherViewModel.addCurrentWeather(result.data)
@@ -297,6 +299,29 @@ class HomeFragment : Fragment() {
     } // Done
 
     private fun setCurrentWeather(result: ApiState.Success<FiveDaysForecast>) {
+        if(Storage.getPreferredLocale(requireContext())=="ar")
+        {
+
+            translateToArabic(result.data.city.name,
+                { translatedName ->
+                    result.data.city.name = translatedName
+                    Log.i(TAG, "setCurrentWeather: ar ${result.data.city.name}")
+                },
+                { exception ->
+                    Log.e(TAG, "Translation failed: ${exception.message}")
+                }
+            )
+
+            translateToArabic(result.data.list.get(0).weather[0].description,
+                { translatedName ->
+                    result.data.list.get(0).weather[0].description = translatedName
+                    Log.i(TAG, "setCurrentWeather: ar ${result.data.list.get(0).weather[0].description}")
+                },
+                { exception ->
+                    Log.e(TAG, "Translation failed: ${exception.message}")
+                }
+            )
+        }
         if (WIND_UNIT == "m/h" && weatherViewModel.wind == null) {
             currentWeather.wind.speed =
                 convertToMilePerHour(currentWeather.wind.speed)

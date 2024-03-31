@@ -32,10 +32,12 @@ import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.weatherforecastapplication.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.mlkit.common.model.DownloadConditions
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.TranslatorOptions
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -343,31 +345,28 @@ fun setCardViewBackground(context: Context):Int{
         ContextCompat.getColor(context,R.color.light)
     else
         ContextCompat.getColor(context,R.color.light)
+}fun translateToArabic(governorateName: String,
+                       onComplete: (String) -> Unit, onFailure: (Exception) -> Unit) {
+    val translationOptions = TranslatorOptions.Builder()
+        .setSourceLanguage(TranslateLanguage.ENGLISH)
+        .setTargetLanguage(TranslateLanguage.ENGLISH)
+        .build()
+    val downloadCondition = DownloadConditions.Builder()
+        .requireWifi().build()
+
+    val translatorArabic = Translation.getClient(translationOptions)
+    translatorArabic.downloadModelIfNeeded(downloadCondition)
+        .addOnSuccessListener {
+            translatorArabic.translate(governorateName)
+                .addOnSuccessListener { translatedText ->
+                    onComplete(translatedText)
+                }
+                .addOnFailureListener { exception ->
+                    onFailure(exception)
+                }
+        }
+        .addOnFailureListener { exception ->
+            onFailure(exception)
+        }
 }
 
-
-/*
-fun translateToArabic(governorateName: String, callback: (String) -> Unit) {
-    val options = FirebaseTranslatorOptions.Builder()
-        .setSourceLanguage(FirebaseTranslateLanguage.EN)
-        .setTargetLanguage(FirebaseTranslateLanguage.AR)
-        .build()
-    val englishArabicTranslator: FirebaseTranslator = FirebaseNaturalLanguage.getInstance().getTranslator(options)
-    englishArabicTranslator.downloadModelIfNeeded()
-        .addOnCompleteListener(object : OnCompleteListener<Void?> {
-            override fun onComplete(task: Task<Void?>) {
-                if (task.isSuccessful) {
-                    englishArabicTranslator.translate(governorateName)
-                        .addOnSuccessListener { translatedText ->
-                            callback(translatedText)
-                        }
-                        .addOnFailureListener { exception ->
-                            callback(governorateName)
-                        }
-                } else {
-                    // Handle model download failure
-                    callback(governorateName)
-                }
-            }
-        })
-}*/

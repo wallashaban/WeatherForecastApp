@@ -15,6 +15,10 @@ class MyApp: Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        applyMode(applicationContext)
+        LocaleUtil
+            .applyLocalizedContext(this,
+                Storage.getPreferredLocale(this))
     }
 
     private fun createNotificationChannel() {
