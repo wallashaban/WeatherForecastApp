@@ -5,7 +5,6 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.Context.*
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -14,14 +13,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.airbnb.lottie.LottieAnimationView
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.databinding.FragmentHomeBinding
 import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
@@ -108,7 +105,7 @@ class HomeFragment : Fragment() {
         lat = arguments?.getFloat("latitude") ?: 0F
         long = arguments?.getFloat("longitude") ?: 0F
 
-        if (lat != 0F && long != 0F) {
+        if (lat != 0F && long != 0F && lat !=1F) {
             val weatherParam = WeatherParam(
                 lat.toDouble(),
                 long.toDouble(),
@@ -132,6 +129,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.i(TAG, "onViewCreated: ")
         binding.cardView.setCardBackgroundColor(  setCardViewBackground(requireContext()))
         binding.detailsCardView.setCardBackgroundColor( setCardViewBackground(requireContext()))
 
@@ -156,7 +154,8 @@ class HomeFragment : Fragment() {
             { isGranted ->
                 if (isGranted) {
                     if (isLocationEnable(requireContext())) {
-                        if (lat == 0F && long == 0F && weatherViewModel.wind == null) {
+                        if ((lat == 0F && long == 0F && weatherViewModel.wind == null)
+                            || lat == 1F){
                             Log.i(TAG, "onViewCreated: before Get fresh location")
                             getFreshLocation()
                         }
@@ -248,6 +247,7 @@ class HomeFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 settingsViewModel.unitsSharedFlow.collect {
                     if (weatherViewModel.unit != it.name) {
+                        Log.i(TAG, "observeTemperature: ")
                         getFreshLocation()
                         weatherViewModel.unit = it.name
                         isTempChanged = true
@@ -263,6 +263,7 @@ class HomeFragment : Fragment() {
                 settingsViewModel.langSharedFlow.collect {
                     getFreshLocation()
                     isTempChanged = true
+                    Log.i(TAG, "observeLanguage: ")
                 }
             }
         }
@@ -272,22 +273,7 @@ class HomeFragment : Fragment() {
         super.onStart()
         val search = requireActivity().findViewById<View>(R.id.search)
         search.visibility = View.VISIBLE
-//        if (checkPermissions()) {
-//            Log.i(TAG, "onStart: permission")
-//            if (isLocationEnable(requireContext())) {
-//                Log.i(TAG, "onStart: isLocation  enabled")
-//                if (lat == 0F && long == 0F)
-//                    getFreshLocation()
-//            } else {
-//                enableLocationServices(requireActivity())
-//                Log.i(TAG, "onStart: enable location")
-//            }
-//        } else {
-//            Log.i(TAG, "onStart: request location")
-//           // requestPermission(requireActivity())
-//        }
-
-    } // Review
+    }
 
     private fun setDailyWeather(result: ApiState.Success<FiveDaysForecast>) {
         var day: String? = null
@@ -351,9 +337,9 @@ class HomeFragment : Fragment() {
         }
     }
     private fun getWeather(weatherParam: WeatherParam) {
-        Log.i(TAG, "getWeather: ${Storage.getCurrentDate(requireContext())}")
+        Log.i(TAG, "getWeather: ${Storage.getCurrentDate(requireContext())} $lat")
         if (Storage.getCurrentDate(requireContext()) == LocalDate.now()
-                .toString() && !isTempChanged && lat==0F
+                .toString() && !isTempChanged && (lat==0F||lat ==1F)
         ) {
             Log.i(TAG, "onLocationResult: getCurrentLocation")
             weatherViewModel.getCurrentWeatherUsingRoom()

@@ -71,8 +71,8 @@ class MapFragment : Fragment() , OnMapReadyCallback, GoogleMap.OnMapClickListene
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val search = requireActivity().findViewById<View>(R.id.search)
-        search.visibility = View.GONE
+       // val search = requireActivity().findViewById<View>(R.id.search)
+       // search.visibility = View.GONE
         binding.map.onCreate(savedInstanceState)
         binding.map.onResume()
         binding.map.getMapAsync(this)

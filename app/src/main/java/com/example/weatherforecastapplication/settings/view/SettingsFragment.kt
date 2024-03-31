@@ -1,7 +1,6 @@
 package com.example.weatherforecastapplication.settings.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,6 @@ import android.widget.Spinner
 import androidx.core.app.ActivityCompat.recreate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.data.models.Language
@@ -20,12 +18,9 @@ import com.example.weatherforecastapplication.settings.viewModel.SettingsViewMod
 import com.example.weatherforecastapplication.data.models.Units
 import com.example.weatherforecastapplication.data.models.WindSpeed
 import com.example.weatherforecastapplication.utils.LocaleUtil
+import com.example.weatherforecastapplication.utils.SpinnerUtils
 import com.example.weatherforecastapplication.utils.Storage
 import com.example.weatherforecastapplication.utils.checkConnectivity
-import com.example.weatherforecastapplication.utils.getCurrentSpinnerLocationValue
-import com.example.weatherforecastapplication.utils.getLangSpinnerValue
-import com.example.weatherforecastapplication.utils.getTempSpinnerValue
-import com.example.weatherforecastapplication.utils.getWindUnitSpinnerValue
 import com.example.weatherforecastapplication.utils.setCardViewBackground
 import com.example.weatherforecastapplication.utils.showSnackbar
 import kotlinx.coroutines.launch
@@ -38,7 +33,7 @@ class SettingsFragment : Fragment() {
     private lateinit var settingsViewModel: SettingsViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        settingsViewModel = ViewModelProvider(requireActivity()).get(SettingsViewModel::class.java)
+        settingsViewModel = ViewModelProvider(requireActivity())[SettingsViewModel::class.java]
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -101,7 +96,7 @@ class SettingsFragment : Fragment() {
         )
 
 
-        binding.windSpinner.setSelection(getWindUnitSpinnerValue(requireContext()))
+        binding.windSpinner.setSelection(SpinnerUtils.getWindUnitSpinnerValue(requireContext()))
         binding.windSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -116,7 +111,7 @@ class SettingsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        binding.locationSpinner.setSelection(getCurrentSpinnerLocationValue(requireContext()))
+        binding.locationSpinner.setSelection(SpinnerUtils.getCurrentSpinnerLocationValue(requireContext()))
         binding.locationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -145,7 +140,7 @@ class SettingsFragment : Fragment() {
 
         }
 
-        binding.tempSpinner.setSelection(getTempSpinnerValue(requireContext()))
+        binding.tempSpinner.setSelection(SpinnerUtils.getTempSpinnerValue(requireContext()))
         binding.tempSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -160,7 +155,7 @@ class SettingsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        binding.langSpinner.setSelection(getLangSpinnerValue(requireContext()))
+        binding.langSpinner.setSelection(SpinnerUtils.getLangSpinnerValue(requireContext()))
         binding.langSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -230,7 +225,7 @@ class SettingsFragment : Fragment() {
                         Storage.setLocation(requireContext(), "gps")
                         val action =
                             SettingsFragmentDirections.actionSettingsFragmentToHomeFragment(
-                                0F,
+                                1F,
                                 0F
                             )
                         Navigation.findNavController(requireView()).navigate(action)

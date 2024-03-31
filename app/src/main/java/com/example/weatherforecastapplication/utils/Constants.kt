@@ -110,52 +110,6 @@ fun applyMode(context: Context) {
         AppCompatDelegate.setDefaultNightMode(Storage.getCurrentTheme(context))
 }
 
-
-fun getTempSpinnerValue(context: Context): Int {
-    return if(Storage.getCurrentUnit(context) == "metric")
-        0
-    else if (Storage.getCurrentUnit(context) == "standard")
-        1
-    else
-        2
-}
-// Lang
-fun getLangSpinnerValue(context: Context): Int {
-
-    return if(Storage.getPreferredLocale(context) == "en")
-        0
-    else if (Storage.getPreferredLocale(context) == "ar")
-        1
-    else
-        2
-}
-
-
-// location
-
-
-fun getCurrentSpinnerLocationValue(context: Context): Int {
-    return if (Storage.getCurrentLocation(context)=="gps")
-    {
-        0
-    }else
-        1
-}
-
-// wind Speed
-
-
-fun getWindUnitSpinnerValue(context: Context): Int {
-
-    return if(Storage.getCurrentWindUnit(context)=="m/s")
-        0
-    else
-        1
-}
-
-
-
-
 // check  location
 
 fun requestPermission(activity: Activity) {
@@ -205,8 +159,10 @@ fun convertToMeterPerSecond(value:Double):Double{
 fun addCelsiusSign(temp:Double,context: Context):String{
     val unit = if (Storage.getCurrentUnit(context) == "metric")
         "C"
+    else if (Storage.getCurrentUnit(context) == "standard")
+        "F"
     else
-        ""
+        "K"
     val spannableString = SpannableString("${temp}\u00B0$unit")
     spannableString.setSpan(
         SuperscriptSpan(), temp.toString().length,
@@ -214,7 +170,6 @@ fun addCelsiusSign(temp:Double,context: Context):String{
     )
     return spannableString.toString()
 }
-
 
 ////////////////////////
 
@@ -287,22 +242,6 @@ fun showTimePickerDialog(context: Context,time:TextView) {
     timePickerDialog.show()
 }
 
-
-
-fun convertDateToMillis(dateString: String): Long {
-
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val date = dateFormat.parse(dateString)
-    return date?.time ?: 0L
-}
-fun convertTimeToMillis(timeString: String): Long {
-    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val date = timeFormat.parse(timeString)
-    return date?.time ?: 0L
-}
-
-
-
 fun checkOverlayPermission(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         if (!Settings.canDrawOverlays(context)) {
@@ -327,40 +266,6 @@ fun showSnackbar(activity: Activity,message: String) {
     snackbar.show()
 }
 ///////////////////////////////////////////////////////////////////
-// Notification permission
-fun requestNotificationPermission(context: Context) {
-    val notificationManager = context
-        .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-    if ( !notificationManager.isNotificationPolicyAccessGranted) {
-        val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-        context.startActivity(intent)
-    }
-}
-fun isNotificationPermissionGranted(context: Context): Boolean {
-    val notificationManager = context
-        .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        return notificationManager.isNotificationPolicyAccessGranted
-    } else {
-      return notificationManager.areNotificationsEnabled()
-    }
-}
-
-fun requestNotificationPermissions(activity: Activity) {
-    Log.i(TAG, "requestLocation: ")
-    requestPermissions(
-        activity,
-        arrayOf(
-            Manifest.permission.ACCESS_NOTIFICATION_POLICY,
-        ),
-        REQUEST_PERMISSION_CODE
-    )
-}
-
-
-
 fun convertArabicDatetimeToEnglish(input: String): String {
     val arabicNumerals = listOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
     val englishNumerals = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
@@ -371,38 +276,6 @@ fun convertArabicDatetimeToEnglish(input: String): String {
     }
     return result
 }
-fun blaBla(context: Activity) {
-    /*val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Toast.makeText(context, "Notifications permission granted", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-//            Toast.makeText(
-//                this, "${getString(R.string.app_name)} can't post notifications without Notification permission",
-//                Toast.LENGTH_LONG
-//            ).show()
-
-            Snackbar.make(
-                "",
-                Snackbar.LENGTH_INDEFINITE
-            ).setAction("Please go to settings") {
-
-            }.show()
-        }
-    }*/
-}
-fun askNotificationPermission(context: Activity) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val settingsIntent: Intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .putExtra(Settings.EXTRA_APP_PACKAGE, "com.example." +
-                    "weatherforecastapplication")
-        context.startActivity(settingsIntent)
-    }
-}
-
 fun showSnowOrRain(activity: Activity,value:Double){
     val temp = convertTempToCelsius(activity,value)
     Log.i(TAG, "showSnowOrRain: $temp")
@@ -470,20 +343,6 @@ fun setCardViewBackground(context: Context):Int{
         ContextCompat.getColor(context,R.color.light)
     else
         ContextCompat.getColor(context,R.color.light)
-}
-
-fun showDialog(context: Activity,) {
-    MaterialAlertDialogBuilder(context)
-        //.setTitle(R.string.dialogTitle)
-        .setMessage("Are you sure you want to delete this ?")
-        .setPositiveButton(
-            "Yes",
-            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int ->
-
-            })
-        .setNegativeButton("No",
-            DialogInterface.OnClickListener { dialog: DialogInterface?, which: Int -> })
-        .show()
 }
 
 
