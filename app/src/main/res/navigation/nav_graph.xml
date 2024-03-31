@@ -34,7 +34,7 @@
     </fragment>
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.example.weatherforecastapplication.weatherFeature.view.MapFragment"
+        android:name="com.example.weatherforecastapplication.favouritesFeature.view.MapFragment"
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" >
         <action

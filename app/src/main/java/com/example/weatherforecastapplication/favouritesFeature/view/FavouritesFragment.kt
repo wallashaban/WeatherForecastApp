@@ -87,7 +87,7 @@ class FavouritesFragment : Fragment() {
         binding.floatingActionButton.setOnClickListener {
             if (checkConnectivity(requireContext())) {
                 val action = FavouritesFragmentDirections
-                    .actionFavouritesFragmentToMapFragment(getString(R.string.fav))
+                    .actionFavouritesFragmentToMapFragment("fav")
                 Navigation.findNavController(requireView())
                     .navigate(action)
             } else {

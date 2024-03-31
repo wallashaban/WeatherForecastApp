@@ -32,7 +32,6 @@
                     android:id="@+id/cityName"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
                     android:text="@{weather.name}"
                     android:textAlignment="textStart"
                     android:textSize="16sp"
@@ -51,7 +50,6 @@
                     android:id="@+id/imageView9"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/location" />

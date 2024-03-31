@@ -13,6 +13,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.weatherforecastapplication.alertFeature.model.MyWorkManager
+import com.example.weatherforecastapplication.alertFeature.view.WorkParam
 import com.example.weatherforecastapplication.data.models.AlertResult
 import com.example.weatherforecastapplication.data.models.AlertRoom
 import com.example.weatherforecastapplication.data.models.WeatherParam
@@ -40,29 +41,23 @@ class AlertViewModel(private val _repo: WeatherRepository) : ViewModel() {
         viewModelScope.launch {
             _repo.getAlertForWeather(weatherParam).catch {
                 _weatherAlert.emit(ApiState.Failure(it))
-                Log.i("TAG", "getAlertForWeather: ")
             }.collectLatest {
-                Log.i("TAG", "getAlertForWeather: ")
                 _weatherAlert.emit(ApiState.Success(it))
             }
         }
     }
 
      fun scheduleWork(
-        targetTimeMillis:Long,
-        lat:Double,
-        long: Double,
-        isNotification:Boolean,
-        dateTime: String
+       workParam: WorkParam
         ) : OneTimeWorkRequest{
         val inputData = Data.Builder()
-            .putDouble("lat", lat)
-            .putDouble("lon", long)
-            .putString("datetime",dateTime)
-            .putBoolean("notification",isNotification)
+            .putDouble("lat", workParam.lat)
+            .putDouble("lon", workParam.long)
+            .putString("datetime",workParam.datetime)
+            .putBoolean("notification",workParam.isNotification)
             .build()
         val currentTimeMillis = System.currentTimeMillis()
-        val initialDelay = targetTimeMillis - currentTimeMillis
+        val initialDelay = workParam.millis - currentTimeMillis
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -77,11 +72,8 @@ class AlertViewModel(private val _repo: WeatherRepository) : ViewModel() {
      }
 
     fun saveAlert(alert: AlertRoom){
-        Log.i("AlertFragment", "saveAlert: before")
         viewModelScope.launch(Dispatchers.IO) {
-            Log.i("AlertFragment", "saveAlert:in ")
             _repo.saveAlert(alert)
-            Log.i("AlertFragment", "saveAlert: after")
         }
     }
     fun deleteAlert(alert: AlertRoom){

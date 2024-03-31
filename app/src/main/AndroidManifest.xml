@@ -29,7 +29,7 @@
             android:enabled="true"
             android:exported="true"></service>
         <service
-            android:name=".alertFeature.model.ForegroundService"
+            android:name=".alertFeature.model.DialogService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback" />

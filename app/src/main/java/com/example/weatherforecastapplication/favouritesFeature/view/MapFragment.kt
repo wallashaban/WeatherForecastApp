@@ -1,4 +1,5 @@
-package com.example.weatherforecastapplication.weatherFeature.view
+package com.example.weatherforecastapplication.favouritesFeature.view
+
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Looper
@@ -10,10 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.example.weatherforecastapplication.R
-import com.example.weatherforecastapplication.databinding.FragmentMapBinding
-import com.example.weatherforecastapplication.data.models.Favourites
 import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
 import com.example.weatherforecastapplication.data.models.Daos
+import com.example.weatherforecastapplication.data.models.Favourites
+import com.example.weatherforecastapplication.databinding.FragmentMapBinding
 import com.example.weatherforecastapplication.favouritesFeature.viewModel.FavouritesViewModel
 import com.example.weatherforecastapplication.utils.getAddressFromCoordinates
 import com.google.android.gms.common.api.Status
@@ -33,10 +34,9 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
-
 private const val TAG = "MapFragment"
 
-class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
+class MapFragment : Fragment() , OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private lateinit var binding: FragmentMapBinding
     private lateinit var googleMap: GoogleMap
@@ -54,7 +54,7 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         favViewModelFactory = FavouritesViewModel.Factory(
-                LocalDataSourceImpl.getInstance(Daos( requireContext()))
+            LocalDataSourceImpl.getInstance(Daos(requireContext()))
         )
         favViewModel = ViewModelProvider(
             this, favViewModelFactory
@@ -82,7 +82,7 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
 
         getPlaces()
       binding.save.setOnClickListener {
-          val favourites = Favourites(latitude!!,longitude!!,name)
+          val favourites = Favourites(latitude!!, longitude!!, name)
           onSaveClicked(favourites)
       }
     }
@@ -94,7 +94,7 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
                 //if (isAdded) {
                 val locationRequest = locationResult.lastLocation
                 moveCamera(
-                    LatLng(locationRequest!!.latitude,locationRequest.longitude),
+                    LatLng(locationRequest!!.latitude, locationRequest.longitude),
                     15F,"My Location"
                 )
                 fusedClient.removeLocationUpdates(this)
@@ -109,7 +109,7 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
             Looper.myLooper()
         )
     }
-    private fun moveCamera (latLng: LatLng,zoom:Float,tile: String)
+    private fun moveCamera (latLng: LatLng, zoom:Float, tile: String)
     {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         val markerOptions = MarkerOptions()
@@ -129,22 +129,22 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
     private fun getPlaces(){
         if(!Places.isInitialized())
         {
-         Places.initialize(
-             requireContext(),
-             "AIzaSyCAOMyuhbP1CAJ1H4WnnMSXyC_xhpu72tE",
-             )
+            Places.initialize(
+                requireContext(),
+                "AIzaSyCAOMyuhbP1CAJ1H4WnnMSXyC_xhpu72tE",
+            )
         }
         val autocompleteFragment =
             childFragmentManager.findFragmentById(
                 R.id.autocomplete_fragment
-            ) as  AutocompleteSupportFragment
+            ) as AutocompleteSupportFragment
         autocompleteFragment
             .setPlaceFields(
                 listOf(
                     Place.Field.ID,
                     Place.Field.NAME,
                     Place.Field.LAT_LNG,
-            Place.Field.VIEWPORT,
+                    Place.Field.VIEWPORT,
                     ))
         autocompleteFragment.setOnPlaceSelectedListener(
             object : PlaceSelectionListener {
@@ -156,7 +156,6 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
                     ),
                     15F,
                     place.name)
-                Log.i(TAG, "Place: ${place.name}, ${place.id}, ${place.latLng?.longitude}")
             }
 
             override fun onError(status: Status) {
@@ -167,29 +166,37 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
 
     private fun onSaveClicked(favourites: Favourites){
         val sourceFragment =  arguments?.getString("source")
+       navigateTo(sourceFragment?:"",favourites)
+    }
+
+    private fun navigateTo(sourceFragment: String,favourites: Favourites) {
         if(sourceFragment == "fav") {
             favViewModel
                 .addWeatherToFavourites(favourites)
-            val action= MapFragmentDirections.actionMapFragmentToFavouritesFragment()
-            val navController=  Navigation.findNavController(requireView())
+            val action=
+                  MapFragmentDirections.actionMapFragmentToFavouritesFragment()
+            val navController= Navigation.findNavController(requireView())
             navController.navigate(action)
 
         } else if(sourceFragment == "alert") {
-            val action= MapFragmentDirections
-                .actionMapFragmentToAlertFragment(
-                latitude!!.toFloat(),
-                longitude!!.toFloat(),
+            val action=
+                  MapFragmentDirections.actionMapFragmentToAlertFragment(
+                    latitude!!.toFloat(),
+                    longitude!!.toFloat(),
                 )
-            val navController=  Navigation.findNavController(requireView())
+            val navController= Navigation.findNavController(requireView())
             navController.navigate(action)
 
         }else{
-            val action= MapFragmentDirections.actionMapFragmentToHomeFragment(
-                latitude!!.toFloat(),longitude!!.toFloat())
-            val navController=  Navigation.findNavController(requireView())
+            val action=
+                  MapFragmentDirections.actionMapFragmentToHomeFragment(
+                    latitude!!.toFloat(), longitude!!.toFloat()
+                )
+            val navController= Navigation.findNavController(requireView())
             navController.navigate(action)
         }
     }
+
     override fun onMapClick(latLng: LatLng) {
         googleMap.clear()
         val markerOptions = MarkerOptions()
@@ -198,8 +205,7 @@ class MapFragment : Fragment() ,OnMapReadyCallback,GoogleMap.OnMapClickListener{
         googleMap.addMarker(markerOptions)
          latitude = latLng.latitude
          longitude = latLng.longitude
-        name = getAddressFromCoordinates(requireContext(),latitude,longitude)
-        Log.i(TAG, "onMapClick: $name")
+        name = getAddressFromCoordinates(requireContext(), latitude, longitude)
         binding.save.visibility = View.VISIBLE
 
     }

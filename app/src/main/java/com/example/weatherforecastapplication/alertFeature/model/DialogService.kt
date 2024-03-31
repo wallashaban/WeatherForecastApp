@@ -11,7 +11,7 @@ import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.alertFeature.view.Window
 
 
-class ForegroundService : Service() {
+class DialogService : Service() {
     private lateinit var  mediaPlayer:MediaPlayer
     override fun onBind(intent: Intent): IBinder? {
         throw UnsupportedOperationException("Not yet implemented")
@@ -34,9 +34,8 @@ class ForegroundService : Service() {
 
     }
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i("TAG", "onStartCommand: ")
         val desc = intent.getStringExtra("description")
-        val window = Window(this@ForegroundService,
+        val window = Window(this@DialogService,
             desc?:"The weather is fine :)")
         window.open()
         mediaPlayer.start()

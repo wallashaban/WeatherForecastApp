@@ -1,6 +1,5 @@
 package com.example.weatherforecastapplication.alertFeature.view
 
-import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
@@ -13,22 +12,21 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.TextView
 import com.example.weatherforecastapplication.R
-import com.example.weatherforecastapplication.alertFeature.model.ForegroundService
+import com.example.weatherforecastapplication.alertFeature.model.DialogService
 
 
 class Window(
     private val context: Context,
     private val description: String
 ) {
-    private val mView: View
-    private var mParams: WindowManager.LayoutParams? = null
-    private val mWindowManager: WindowManager
+    private val view: View
+    private var params: WindowManager.LayoutParams? = null
+    private val windowManager: WindowManager
     private val layoutInflater: LayoutInflater
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.i("TAG", "inint O")
-            mParams = WindowManager.LayoutParams(
+            params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -36,8 +34,7 @@ class Window(
                 PixelFormat.TRANSLUCENT
             )
         }else{
-            Log.i("TAG", "inint")
-            mParams = WindowManager.LayoutParams(
+            params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
@@ -47,19 +44,19 @@ class Window(
         }
         layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-        mView = layoutInflater.inflate(R.layout.popup_window_layout, null)
-        mView.findViewById<View>(R.id.dismiss).setOnClickListener { dismiss() }
-      val descriptionTv =  mView.findViewById<TextView>(R.id.dialog_desc)
+        view = layoutInflater.inflate(R.layout.popup_window_layout, null)
+        view.findViewById<View>(R.id.dismiss).setOnClickListener { dismiss() }
+      val descriptionTv =  view.findViewById<TextView>(R.id.dialog_desc)
         descriptionTv.text = description
-        mParams!!.gravity = Gravity.TOP
-        mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        params!!.gravity = Gravity.TOP
+        windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
 
     fun open() {
         try {
-            if (mView.windowToken == null) {
-                if (mView.parent == null) {
-                    mWindowManager.addView(mView, mParams)
+            if (view.windowToken == null) {
+                if (view.parent == null) {
+                    windowManager.addView(view, params)
                 }
             }
         } catch (e: Exception) {
@@ -69,10 +66,10 @@ class Window(
 
     private fun dismiss() {
         try {
-            context.stopService(Intent(context,ForegroundService::class.java))
-            (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).removeView(mView)
-            mView.invalidate()
-            (mView.parent as ViewGroup).removeAllViews()
+            context.stopService(Intent(context,DialogService::class.java))
+            (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).removeView(view)
+            view.invalidate()
+            (view.parent as ViewGroup).removeAllViews()
         } catch (e: Exception) {
             Log.d("Error2", e.toString())
         }

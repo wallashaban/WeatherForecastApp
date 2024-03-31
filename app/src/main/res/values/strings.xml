@@ -59,4 +59,11 @@
     <string name="savedalerts">Your Alerts</string>
     <string name="noAlerts">No Alerts</string>
     <string name="noFav">No Favourites</string>
+    <string name="cancel">Cancel</string>
+    <string name="saveD">Save</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="notifications">Notitfication</string>
+    <string name="alarm">Alarm</string>
+    <string name="datetime">Please set date and time</string>
 </resources>

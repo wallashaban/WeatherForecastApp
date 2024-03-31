@@ -34,7 +34,7 @@ class AlertNotificationService(private val context: Context) {
             .setContentTitle("Weather Alert")
             .setContentText(description)
             .setCategory(Notification.CATEGORY_ALARM)
-            .setLargeIcon(icon)
+           // .setLargeIcon(icon)
             .setContentIntent(pendingIntent)
             .build()
     }

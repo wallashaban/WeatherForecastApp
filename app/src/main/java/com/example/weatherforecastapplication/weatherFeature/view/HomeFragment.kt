@@ -357,7 +357,7 @@ class HomeFragment : Fragment() {
         ) {
             Log.i(TAG, "onLocationResult: getCurrentLocation")
             weatherViewModel.getCurrentWeatherUsingRoom()
-        } else if(isTempChanged && lat==0F){
+        } else if(lat==0F){
             if (checkConnectivity(requireContext())) {
                 weatherViewModel.getFiveDaysForecast(weatherParam)
                 isChanged = true

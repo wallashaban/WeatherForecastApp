@@ -9,27 +9,21 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.weatherforecastapplication.R
-import com.example.weatherforecastapplication.data.local.LocalDataSource
 import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
 import com.example.weatherforecastapplication.data.models.Daos
 import com.example.weatherforecastapplication.data.remote.RemoteDataSourceImpl
 import com.example.weatherforecastapplication.data.models.WeatherParam
-import com.example.weatherforecastapplication.data.repo.WeatherRepository
 import com.example.weatherforecastapplication.data.repo.WeatherRepositoryImpl
 import com.example.weatherforecastapplication.utils.API_KEY
 import com.example.weatherforecastapplication.utils.Storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.internal.synchronizedImpl
 import kotlinx.coroutines.withContext
 
 
 class MyWorkManager(val context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params) {
     private var isNotification = true
-    private lateinit var date: String
-    private lateinit var time: String
     override suspend fun doWork(): Result {
         Log.i("TAG", "doWork: ")
         withContext(Dispatchers.IO) {
@@ -39,18 +33,17 @@ class MyWorkManager(val context: Context, params: WorkerParameters) :
             val datetime = inputData.getString("datetime")
             isNotification = inputData.getBoolean("notification", true)
 
-            fetchDataAndShowNotification(context, lat, lon,datetime!!)
+            getWeatherAlert(context, lat, lon,datetime!!)
         }
         return Result.success()
     }
 
-    private suspend fun fetchDataAndShowNotification(
+    private suspend fun getWeatherAlert(
         context: Context,
         lat: Double,
         long: Double,
         datetime:String
     ) {
-
 
         val repo = WeatherRepositoryImpl.getInstance(
             RemoteDataSourceImpl,
@@ -104,13 +97,13 @@ class MyWorkManager(val context: Context, params: WorkerParameters) :
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.canDrawOverlays(context)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(Intent(context, ForegroundService::class.java))
+                    context.startForegroundService(Intent(context, DialogService::class.java))
                 } else {
-                    context.startService(Intent(context, ForegroundService::class.java))
+                    context.startService(Intent(context, DialogService::class.java))
                 }
             }
         } else {
-            val intent = Intent(context, ForegroundService::class.java)
+            val intent = Intent(context, DialogService::class.java)
             intent.putExtra("description", description)
             context.startService(intent)
         }

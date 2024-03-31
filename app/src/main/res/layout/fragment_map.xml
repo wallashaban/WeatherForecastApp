@@ -17,7 +17,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:backgroundTint="@color/white"
-    tools:context=".weatherFeature.view.MapFragment">
+    tools:context=".favouritesFeature.view.MapFragment">
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/map"

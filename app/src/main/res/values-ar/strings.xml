@@ -57,6 +57,15 @@
     <string name="savedalerts">التنبيهات الخاصة بك</string>
     <string name="noAlerts">لا تنبيهات</string>
     <string name="noFav">لا تفضيلات</string>
+    <!-- values-ar/strings.xml -->
+    <string name="cancel">إلغاء</string>
+    <string name="saveD">حفظ</string>
+    <string name="date">التاريخ</string>
+    <string name="time">الوقت</string>
+    <string name="notifications">الإشعارات</string>
+    <string name="alarm">التنبيه</string>
+    <string name="datetime">يرجى تحديد التاريخ والوقت</string>
+
 
 
 

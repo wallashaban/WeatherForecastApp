@@ -20,7 +20,6 @@ import com.example.weatherforecastapplication.databinding.FragmentAlertBinding
 import com.example.weatherforecastapplication.data.local.LocalDataSourceImpl
 import com.example.weatherforecastapplication.data.models.AlertRoom
 import com.example.weatherforecastapplication.data.models.Daos
-import com.example.weatherforecastapplication.data.models.Favourites
 import com.example.weatherforecastapplication.data.remote.RemoteDataSourceImpl
 import com.example.weatherforecastapplication.utils.ApiState
 import com.example.weatherforecastapplication.utils.checkConnectivity
@@ -62,12 +61,12 @@ class AlertFragment : Fragment() {
         long = arguments?.getFloat("longitude") ?: 0F
 
         if (lat != 0F && long != 0F) {
-            checkOverlayPermission(requireContext())
+
             val context = requireContext()
             val alertDialog = AlertDialog(
-                context, lat.toDouble(), long.toDouble(),
+                context, lat.toDouble(),
+                long.toDouble(),
                 alertViewModel,
-                requireActivity()
             )
 
             alertDialog.show()
@@ -147,7 +146,6 @@ class AlertFragment : Fragment() {
 
     private fun showAlertDialog(alert: AlertRoom) {
         MaterialAlertDialogBuilder(requireContext())
-            //.setTitle(R.string.dialogTitle)
             .setMessage(getString(R.string.alertMessage))
             .setPositiveButton(
                 getString(R.string.yes)
