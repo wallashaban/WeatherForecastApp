@@ -146,6 +146,7 @@ class HomeFragment : Fragment() {
         binding.dailyWeatherRv.layoutManager = dailyManager
         binding.dailyWeatherRv.adapter = dailyWeatherAdapter
 
+        observeWeather()
         observeWindSpeed()
         observeTemperature()
         observeLanguage()
@@ -168,7 +169,7 @@ class HomeFragment : Fragment() {
                 }
             }
         result.launch(ACCESS_FINE_LOCATION)
-        observeWeather()
+
     }
 
     private fun observeWeather() {
@@ -193,7 +194,7 @@ class HomeFragment : Fragment() {
 
                         is ApiState.Success -> {
 
-
+                            currentWeather = result.data.list[0]
                             if (isChanged && !isTempChanged) {
                                 result.data.currentDate = LocalDate.now().toString()
                                 weatherViewModel.addCurrentWeather(result.data)
@@ -207,7 +208,7 @@ class HomeFragment : Fragment() {
                             }
                             binding.homeProgressBar.visibility = View.GONE
                             binding.homeData.visibility = View.VISIBLE
-                            currentWeather = result.data.list[0]
+
                             showSnowOrRain(
                                 requireActivity(),
                                 currentWeather.main.temp)

@@ -36,7 +36,7 @@ class DialogService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val desc = intent.getStringExtra("description")
         val window = Window(this@DialogService,
-            desc?:"The weather is fine :)")
+            desc!!)
         window.open()
         mediaPlayer.start()
         return super.onStartCommand(intent, flags, startId)

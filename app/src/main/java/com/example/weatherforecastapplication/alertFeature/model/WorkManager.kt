@@ -97,9 +97,14 @@ class MyWorkManager(val context: Context, params: WorkerParameters) :
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.canDrawOverlays(context)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(Intent(context, DialogService::class.java))
+                    val intent = Intent(context, DialogService::class.java)
+                    intent.putExtra("description", description)
+                    context.startForegroundService(intent)
+                   // context.startForegroundService(Intent(context, DialogService::class.java))
                 } else {
-                    context.startService(Intent(context, DialogService::class.java))
+                    val intent = Intent(context, DialogService::class.java)
+                    intent.putExtra("description", description)
+                    context.startService(intent)
                 }
             }
         } else {

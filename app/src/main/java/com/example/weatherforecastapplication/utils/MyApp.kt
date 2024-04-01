@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import com.example.weatherforecastapplication.alertFeature.model.AlertNotificationService
 
 class MyApp: Application() {
@@ -16,9 +17,9 @@ class MyApp: Application() {
         super.onCreate()
         createNotificationChannel()
         applyMode(applicationContext)
-        LocaleUtil
+       /* LocaleUtil
             .applyLocalizedContext(this,
-                Storage.getPreferredLocale(this))
+                Storage.getPreferredLocale(this))*/
     }
 
     private fun createNotificationChannel() {
@@ -37,6 +38,8 @@ class MyApp: Application() {
     }
 
     override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(LocaleUtil.getLocalizedContext(base, Storage(base).getPreferredLocale()))
+        Log.i("TAG", "attachBaseContext: ${Storage(base).getPreferredLocale()}")
+        super.attachBaseContext(LocaleUtil.getLocalizedContext(base,
+            Storage(base).getPreferredLocale()))
     }
 }

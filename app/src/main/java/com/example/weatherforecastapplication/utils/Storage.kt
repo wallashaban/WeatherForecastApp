@@ -11,6 +11,11 @@ class Storage (context: Context?) {
     fun getPreferredLocale(): String {
         return preferences.getString("preferred_locale", LocaleUtil.OPTION_PHONE_LANGUAGE)!!
     }
+    fun setPreferredLocale(lang: String) {
+        val editor = preferences.edit()
+        editor.putString("preferred_locale", lang)
+        editor.apply()
+    }
     /* fun getPreferredLocale(): String {
         return preferences.getString("preferred_locale", LocaleUtil.OPTION_PHONE_LANGUAGE)!!
     }

@@ -39,7 +39,7 @@ abstract class WeatherDatabase : RoomDatabase() {
                     klass = WeatherDatabase::class.java,
                     name = "weather"
                 )
-                    //.fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

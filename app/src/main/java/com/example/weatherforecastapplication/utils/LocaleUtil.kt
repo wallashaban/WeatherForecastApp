@@ -73,7 +73,8 @@ class LocaleUtil  {
             Locale.setDefault(currentLocale)
             if (!baseLocale.toString().equals(currentLocale.toString(), ignoreCase = true)) {
                 val config = getLocalizedConfiguration(currentLocale)
-                baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
+                baseContext.resources.updateConfiguration(config,
+                    baseContext.resources.displayMetrics)
             }
         }
 

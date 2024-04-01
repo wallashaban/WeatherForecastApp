@@ -1,6 +1,7 @@
 package com.example.weatherforecastapplication.settings.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -236,13 +237,26 @@ class SettingsFragment : Fragment() {
             showSnackbar(requireActivity(),getString(R.string.noInternetMessage))
         }
     }
-
+fun getSelectedItem():String{
+    if(Storage.getPreferredLocale(requireContext()) == "ar")
+        return getString(R.string.arabic_language)
+    else if(Storage.getPreferredLocale(requireContext()) == "en")
+        return getString(R.string.english_language)
+    else
+        return getString(R.string.system_mode)
+}
     private fun onLangItemSelected(selectedItem: String) {
-        if (selectedItem!=Storage.getPreferredLocale(requireContext()))
+        Log.i(TAG, "onLangItemSelected:" +
+                " $selectedItem ${Storage.getPreferredLocale(requireContext())}" +
+                "   ${getSelectedItem()}")
+        if (selectedItem!=getSelectedItem())
             when (selectedItem) {
                 getString(R.string.english_language) -> {
                     lang = "en"
                     if (Storage.getPreferredLocale(requireContext()) != lang) {
+                        Log.i(TAG, "onLangItemSelected: preferred_locale" +
+                                "${Storage.getPreferredLocale(requireContext())}  " +
+                                "$lang")
                         settingsViewModel.changeLanguage(Language.ENGLISH)
                         updateAppLocale(lang)
                     }
@@ -251,6 +265,9 @@ class SettingsFragment : Fragment() {
                 getString(R.string.system_mode) -> {
                     lang = "sys_def"
                     if (Storage.getPreferredLocale(requireContext()) != lang) {
+                        Log.i(TAG, "onLangItemSelected: preferred_locale" +
+                                "${Storage.getPreferredLocale(requireContext())}  " +
+                                "$lang")
                         settingsViewModel.changeLanguage(Language.SYSTEM)
                         updateAppLocale(lang)
                     }
@@ -259,6 +276,9 @@ class SettingsFragment : Fragment() {
                 getString(R.string.arabic_language) -> {
                     lang = "ar"
                     if (Storage.getPreferredLocale(requireContext()) != lang) {
+                        Log.i(TAG, "onLangItemSelected: preferred_locale" +
+                                "${Storage.getPreferredLocale(requireContext())}  " +
+                                "$lang")
                         settingsViewModel.changeLanguage(Language.ARABIC)
                         updateAppLocale(lang)
                     }
@@ -293,13 +313,14 @@ class SettingsFragment : Fragment() {
         }
     }
     private fun updateAppLocale(locale: String) {
-        if (Storage.getPreferredLocale(requireContext()) == locale)
+        /*if (Storage.getPreferredLocale(requireContext()) == locale)
             return
-        else {
+        else {*/
+       // Storage(requireContext()).setPreferredLocale(lang)
             Storage.setPreferredLocale(requireContext(), lang)
             LocaleUtil.applyLocalizedContext(requireContext(), locale)
             recreate(requireActivity())
-        }
+        //}
     }
     private fun onWindUnitItemSelected(selectedItem: String) {
         when (selectedItem) {
