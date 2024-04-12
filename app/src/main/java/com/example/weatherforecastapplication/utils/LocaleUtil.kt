@@ -13,11 +13,7 @@ class LocaleUtil  {
         val supportedLocales = listOf("en", "ar")
         const val OPTION_PHONE_LANGUAGE = "sys_def"
 
-        /**
-         * returns the locale to use depending on the preference value
-         * when preference value = "sys_def" returns the locale of current system
-         * else it returns the locale code e.g. "en", "bn" etc.
-         */
+
         fun getLocaleFromPrefCode(prefCode: String): Locale{
             val localeCode = if(prefCode != OPTION_PHONE_LANGUAGE) {
                 prefCode

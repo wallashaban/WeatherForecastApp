@@ -6,26 +6,42 @@ import android.util.Log
 
 class Storage (context: Context?) {
 
-    private var preferences: SharedPreferences = context!!.getSharedPreferences("sp", Context.MODE_PRIVATE)
+    private var preferences: SharedPreferences = context!!.getSharedPreferences("preferred_locale", Context.MODE_PRIVATE)
 
     fun getPreferredLocale(): String {
-        return preferences.getString("preferred_locale", LocaleUtil.OPTION_PHONE_LANGUAGE)!!
+        Log.i("TAG", "getPreferredLocale: " +
+                "${preferences.getString("lang", LocaleUtil.OPTION_PHONE_LANGUAGE)!!}")
+        return preferences.getString("lang", LocaleUtil.OPTION_PHONE_LANGUAGE)!!
     }
     fun setPreferredLocale(lang: String) {
+        Log.i("TAG", "setPreferredLocale: $lang")
         val editor = preferences.edit()
-        editor.putString("preferred_locale", lang)
+        editor.putString("lang", lang)
         editor.apply()
     }
-    /* fun getPreferredLocale(): String {
-        return preferences.getString("preferred_locale", LocaleUtil.OPTION_PHONE_LANGUAGE)!!
-    }
 
-    fun setPreferredLocale(localeCode: String) {
-        preferences.edit().putString("preferred_locale", localeCode).apply()
-    }*/
 
     companion object {
+      /*  fun setPreferredLocale(context: Context, lang: String) {
+            val sharedPreferences = context.getSharedPreferences("preferred_locale", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putString("lang", lang)
+            editor.apply()
+            Log.i("TAG", "saveSelectedLangToSharedPref: $lang")
+        }
 
+        fun getPreferredLocale(context: Context): String {
+            Log.i("TAG", "getPreferredLocale: $context")
+            val sharedPreferences =
+                context.applicationContext
+                    .getSharedPreferences(
+                        "preferred_locale",
+                        Context.MODE_PRIVATE,
+                    )
+
+            return sharedPreferences.getString("lang", "sys_def")!!
+        }
+*/
         // date
         fun getCurrentDate(context: Context): String {
             val sharedPreferences = context.getSharedPreferences("date", Context.MODE_PRIVATE)
@@ -73,25 +89,7 @@ class Storage (context: Context?) {
         }
 
         // lang
-        fun setPreferredLocale(context: Context, lang: String) {
-            val sharedPreferences = context.getSharedPreferences("lang", Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putString("lang", lang)
-            editor.apply()
-            Log.i("TAG", "saveSelectedLangToSharedPref: $lang")
-        }
 
-        fun getPreferredLocale(context: Context): String {
-            Log.i("TAG", "getPreferredLocale: $context")
-            val sharedPreferences =
-                context.applicationContext
-                .getSharedPreferences(
-                    "lang",
-                    Context.MODE_PRIVATE,
-                    )
-
-            return sharedPreferences.getString("lang", "sys_def")!!
-        }
 
 
 // units

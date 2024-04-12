@@ -17,9 +17,9 @@ class SpinnerUtils {
         // Lang
         fun getLangSpinnerValue(context: Context): Int {
 
-            return if (Storage.getPreferredLocale(context) == "en")
+            return if (Storage(context).getPreferredLocale() == "en")
                 0
-            else if (Storage.getPreferredLocale(context) == "ar")
+            else if (Storage(context).getPreferredLocale() == "ar")
                 1
             else
                 2

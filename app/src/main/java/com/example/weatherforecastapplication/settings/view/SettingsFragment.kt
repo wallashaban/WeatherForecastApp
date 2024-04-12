@@ -8,23 +8,25 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.core.app.ActivityCompat.recreate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.example.weatherforecastapplication.R
 import com.example.weatherforecastapplication.data.models.Language
-import com.example.weatherforecastapplication.databinding.FragmentSettingsBinding
-import com.example.weatherforecastapplication.settings.viewModel.SettingsViewModel
 import com.example.weatherforecastapplication.data.models.Units
 import com.example.weatherforecastapplication.data.models.WindSpeed
+import com.example.weatherforecastapplication.databinding.FragmentSettingsBinding
+import com.example.weatherforecastapplication.settings.viewModel.SettingsViewModel
 import com.example.weatherforecastapplication.utils.LocaleUtil
 import com.example.weatherforecastapplication.utils.SpinnerUtils
 import com.example.weatherforecastapplication.utils.Storage
 import com.example.weatherforecastapplication.utils.checkConnectivity
 import com.example.weatherforecastapplication.utils.setCardViewBackground
 import com.example.weatherforecastapplication.utils.showSnackbar
-import kotlinx.coroutines.launch
+import java.util.Locale
+
 
 private const val TAG = "SettingsFragment"
 
@@ -46,7 +48,7 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.settingsCard.setCardBackgroundColor( setCardViewBackground(requireContext()))
+        binding.settingsCard.setCardBackgroundColor(setCardViewBackground(requireContext()))
 
         val tempItems = listOf(
             getString(R.string.celsius),
@@ -81,16 +83,76 @@ class SettingsFragment : Fragment() {
             getString(R.string.system_mode)
         )
 
-        spinnerData(
+       /* spinnerData(
             binding.langSpinner,
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, langItems)
-        )
+        )*/
 
         val themeItems = listOf(
             getString(R.string.light_mode),
             getString(R.string.dark_mode),
             getString(R.string.system_mode)
         )
+        binding.bla.text = if(Storage(requireContext()).getPreferredLocale()=="ar"){
+            "العربيه"
+        }else{
+            "English"
+        }
+        binding.bla.setOnClickListener {
+            Log.i(TAG, "onViewCreated: Switch")
+            val defaultLocale: Locale = Locale.getDefault()
+            val defaultLanguage: String = defaultLocale.getLanguage()
+
+            if (defaultLanguage == "ar") {
+                // System default language is Arabic
+                Toast.makeText(requireContext(), "System default language is Arabic", Toast.LENGTH_SHORT).show()
+            } else if (defaultLanguage == "en") {
+                // System default language is English
+                Toast.makeText(requireContext(), "System default language is English", Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+                // System default language is neither Arabic nor English
+                Toast.makeText(
+                    requireContext(),
+                    "System default language is neither Arabic nor English",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            if(Storage(requireContext()).getPreferredLocale()=="ar") {
+                Log.i(TAG, "onViewCreated: en")
+                binding.bla.text =="English" /*getString(R.string.english_language)*/
+                lang = "en"
+                settingsViewModel.changeLanguage(Language.ENGLISH)
+                updateAppLocale(lang)
+            }else if(Storage(requireContext()).getPreferredLocale()=="en"){
+                Log.i(TAG, "onViewCreated: ar")
+                binding.bla.text == getString(R.string.arabic_language)
+                lang = "ar"
+                settingsViewModel.changeLanguage(Language.ARABIC)
+                updateAppLocale(lang)
+            }else{
+                val defaultLocale: Locale = Locale.getDefault()
+                val defaultLanguage: String = defaultLocale.getLanguage()
+
+                if (defaultLanguage == "ar") {
+                    Log.i(TAG, "onViewCreated: en")
+                    binding.bla.text =="English" /*getString(R.string.english_language)*/
+                    lang = "en"
+                    settingsViewModel.changeLanguage(Language.ENGLISH)
+                    updateAppLocale(lang)
+                    Toast.makeText(requireContext(), "System default language is Arabic", Toast.LENGTH_SHORT).show()
+                } else if (defaultLanguage == "en") {
+                    Log.i(TAG, "onViewCreated: ar")
+                    binding.bla.text == getString(R.string.arabic_language)
+                    lang = "ar"
+                    settingsViewModel.changeLanguage(Language.ARABIC)
+                    updateAppLocale(lang)
+                    Toast.makeText(requireContext(), "System default language is English", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+            Log.i(TAG, "onViewCreated: ${Storage(requireContext()).getPreferredLocale()}")
+        }
         spinnerData(
             binding.themeSpinner,
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, themeItems)
@@ -112,8 +174,13 @@ class SettingsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        binding.locationSpinner.setSelection(SpinnerUtils.getCurrentSpinnerLocationValue(requireContext()))
-        binding.locationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.locationSpinner.setSelection(
+            SpinnerUtils.getCurrentSpinnerLocationValue(
+                requireContext()
+            )
+        )
+        binding.locationSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
                     view: View?,
@@ -123,6 +190,7 @@ class SettingsFragment : Fragment() {
                     val selectedItem = parent?.getItemAtPosition(position).toString()
                     onLocationItemSelected(selectedItem)
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
 
@@ -151,12 +219,13 @@ class SettingsFragment : Fragment() {
             ) {
                 val selectedItem = parent?.getItemAtPosition(position).toString()
 
-               onTempItemSelected(selectedItem)
+                onTempItemSelected(selectedItem)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        binding.langSpinner.setSelection(SpinnerUtils.getLangSpinnerValue(requireContext()))
+        /* binding.langSpinner.setSelection(SpinnerUtils.getLangSpinnerValue(requireContext()))
         binding.langSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -169,8 +238,9 @@ class SettingsFragment : Fragment() {
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-    }
 
+*/
+    }
     private fun onTempItemSelected(selectedItem: String) {
         if(checkConnectivity(requireContext())) {
             when (selectedItem) {
@@ -238,25 +308,25 @@ class SettingsFragment : Fragment() {
         }
     }
 fun getSelectedItem():String{
-    if(Storage.getPreferredLocale(requireContext()) == "ar")
+    if(Storage(requireContext()).getPreferredLocale() == "ar")
         return getString(R.string.arabic_language)
-    else if(Storage.getPreferredLocale(requireContext()) == "en")
+    else if(Storage(requireContext()).getPreferredLocale() == "en")
         return getString(R.string.english_language)
     else
         return getString(R.string.system_mode)
 }
     private fun onLangItemSelected(selectedItem: String) {
-        Log.i(TAG, "onLangItemSelected:" +
+       /* Log.i(TAG, "onLangItemSelected:" +
                 " $selectedItem ${Storage.getPreferredLocale(requireContext())}" +
-                "   ${getSelectedItem()}")
+                "   ${getSelectedItem()}")*/
         if (selectedItem!=getSelectedItem())
             when (selectedItem) {
                 getString(R.string.english_language) -> {
                     lang = "en"
-                    if (Storage.getPreferredLocale(requireContext()) != lang) {
-                        Log.i(TAG, "onLangItemSelected: preferred_locale" +
+                    if (Storage(requireContext()).getPreferredLocale() != lang) {
+                       /* Log.i(TAG, "onLangItemSelected: preferred_locale" +
                                 "${Storage.getPreferredLocale(requireContext())}  " +
-                                "$lang")
+                                "$lang")*/
                         settingsViewModel.changeLanguage(Language.ENGLISH)
                         updateAppLocale(lang)
                     }
@@ -264,10 +334,10 @@ fun getSelectedItem():String{
 
                 getString(R.string.system_mode) -> {
                     lang = "sys_def"
-                    if (Storage.getPreferredLocale(requireContext()) != lang) {
-                        Log.i(TAG, "onLangItemSelected: preferred_locale" +
+                    if (Storage(requireContext()).getPreferredLocale() != lang) {
+                       /* Log.i(TAG, "onLangItemSelected: preferred_locale" +
                                 "${Storage.getPreferredLocale(requireContext())}  " +
-                                "$lang")
+                                "$lang")*/
                         settingsViewModel.changeLanguage(Language.SYSTEM)
                         updateAppLocale(lang)
                     }
@@ -275,10 +345,10 @@ fun getSelectedItem():String{
 
                 getString(R.string.arabic_language) -> {
                     lang = "ar"
-                    if (Storage.getPreferredLocale(requireContext()) != lang) {
-                        Log.i(TAG, "onLangItemSelected: preferred_locale" +
+                    if (Storage(requireContext()).getPreferredLocale() != lang) {
+                       /* Log.i(TAG, "onLangItemSelected: preferred_locale" +
                                 "${Storage.getPreferredLocale(requireContext())}  " +
-                                "$lang")
+                                "$lang")*/
                         settingsViewModel.changeLanguage(Language.ARABIC)
                         updateAppLocale(lang)
                     }
@@ -313,14 +383,10 @@ fun getSelectedItem():String{
         }
     }
     private fun updateAppLocale(locale: String) {
-        /*if (Storage.getPreferredLocale(requireContext()) == locale)
-            return
-        else {*/
-       // Storage(requireContext()).setPreferredLocale(lang)
-            Storage.setPreferredLocale(requireContext(), lang)
+        Log.i(TAG, "updateAppLocale: $lang $locale")
+        Storage(requireContext()).setPreferredLocale(locale)
             LocaleUtil.applyLocalizedContext(requireContext(), locale)
             recreate(requireActivity())
-        //}
     }
     private fun onWindUnitItemSelected(selectedItem: String) {
         when (selectedItem) {

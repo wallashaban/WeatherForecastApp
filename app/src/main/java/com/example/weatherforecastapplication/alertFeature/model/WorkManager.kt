@@ -55,7 +55,7 @@ class MyWorkManager(val context: Context, params: WorkerParameters) :
             long,
             API_KEY,
             Storage.getCurrentUnit(context),
-            Storage.getPreferredLocale(context),
+            Storage(context).getPreferredLocale(),
         )
 
         repo.getAlertForWeather(weatherParam)

@@ -17,6 +17,7 @@ class MyApp: Application() {
         super.onCreate()
         createNotificationChannel()
         applyMode(applicationContext)
+        //Storage.getPreferredLocale(applicationContext)
        /* LocaleUtil
             .applyLocalizedContext(this,
                 Storage.getPreferredLocale(this))*/

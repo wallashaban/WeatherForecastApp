@@ -112,7 +112,7 @@ class HomeFragment : Fragment() {
                 long.toDouble(),
                 API_KEY,
                 Storage.getCurrentUnit(requireActivity()),
-                Storage.getPreferredLocale(requireActivity())
+                Storage(requireContext()).getPreferredLocale()
             )
             Log.i(TAG, "onCreate: lat long")
             weatherViewModel.getFiveDaysForecast(weatherParam)
@@ -300,7 +300,7 @@ class HomeFragment : Fragment() {
     } // Done
 
     private fun setCurrentWeather(result: ApiState.Success<FiveDaysForecast>) {
-        if(Storage.getPreferredLocale(requireContext())=="ar")
+        if(Storage(requireContext()).getPreferredLocale()=="ar")
         {
 
             translateToArabic(result.data.city.name,
@@ -354,7 +354,7 @@ class HomeFragment : Fragment() {
                     val weatherParam = WeatherParam(
                         latitude!!, longitude!!, API_KEY,
                         Storage.getCurrentUnit(requireActivity()),
-                        Storage.getPreferredLocale(requireActivity())
+                        Storage(requireContext()).getPreferredLocale()
                     )
                     getWeather(weatherParam)
                     fusedClient.removeLocationUpdates(this)
